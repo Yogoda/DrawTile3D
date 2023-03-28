@@ -1,2 +1,2 @@
-# DrawTile3D
- Godot 3D Tile Editor
+# GoGoTile
+ Quick 3D pixel dungeon creator.
