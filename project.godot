@@ -12,9 +12,19 @@ config_version=5
 
 config/name="GoGoTile"
 config/description="Quick 3D pixel dungeon creator."
+run/main_scene="res://main.tscn"
 config/features=PackedStringArray("4.0")
 config/icon="res://icon.png"
 
+[editor_plugins]
+
+enabled=PackedStringArray()
+
+[filesystem]
+
+import/blender/enabled=false
+
 [rendering]
 
+textures/canvas_textures/default_texture_filter=0
 environment/default_environment="res://default_env.tres"

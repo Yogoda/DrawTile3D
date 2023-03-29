@@ -10,6 +10,9 @@ extends Node3D
 
 @export var default_tile_type:TileType
 
+@export var tiles_xcount:=16
+@export var tile_index:Vector2
+
 var tile_map = {}
 
 # Called when the node enters the scene tree for the first time.
@@ -39,10 +42,14 @@ func copy_mesh(p_mesh:Mesh, p_surface_tool:SurfaceTool):
 			vertex = mesh_data_tool.get_vertex(vertex_index)
 			normal = mesh_data_tool.get_vertex_normal(vertex_index)
 			uv = mesh_data_tool.get_vertex_uv(vertex_index)
+			
+			uv = uv / tiles_xcount + tile_index * (1.0 / tiles_xcount)
 
 			p_surface_tool.set_uv(uv)
 			p_surface_tool.set_normal(normal)
 			p_surface_tool.add_vertex(vertex)
+			
+	tile_index.x += 1
 
 func generate_():
 	
@@ -51,7 +58,6 @@ func generate_():
 	create_test_tiles()
 	
 	var tile_type:TileType = tile_map[Vector3(0, 0, 0)].tile_type
-	print(tile_type.mesh_front)
 	
 	var surface_tool:SurfaceTool = SurfaceTool.new()
 	surface_tool.begin(Mesh.PRIMITIVE_TRIANGLES)
