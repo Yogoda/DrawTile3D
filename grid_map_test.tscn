@@ -1,0 +1,19 @@
+[gd_scene load_steps=4 format=3 uid="uid://cftsyidx08vde"]
+
+[ext_resource type="ArrayMesh" uid="uid://3ub0gb22e8wf" path="res://tile_types/block/block_bottom.res" id="1_pbbg1"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_6gekv"]
+
+[sub_resource type="MeshLibrary" id="MeshLibrary_hi0lk"]
+item/0/name = ""
+item/0/mesh = ExtResource("1_pbbg1")
+item/0/mesh_transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+item/0/shapes = [SubResource("BoxShape3D_6gekv"), Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)]
+item/0/navigation_mesh_transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+item/0/navigation_layers = 1
+
+[node name="Node3D" type="Node3D"]
+
+[node name="GridMap" type="GridMap" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.013268, -0.0182672, -0.00119495)
+mesh_library = SubResource("MeshLibrary_hi0lk")

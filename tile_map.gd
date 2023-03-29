@@ -67,15 +67,21 @@ func generate_(value):
 	var surface_tool:SurfaceTool = SurfaceTool.new()
 	surface_tool.begin(Mesh.PRIMITIVE_TRIANGLES)
 
-	for tile_pos in tile_map.keys():
+	for tile_pos in tile_map.keys() as Array[Vector3i]:
 		
 		var tile_type:TileType = tile_map[tile_pos].tile_type
 	
-		copy_mesh(tile_type.mesh_front, surface_tool, tile_pos)
-		copy_mesh(tile_type.mesh_back, surface_tool, tile_pos)
-		copy_mesh(tile_type.mesh_left, surface_tool, tile_pos)
-		copy_mesh(tile_type.mesh_right, surface_tool, tile_pos)
-		copy_mesh(tile_type.mesh_top, surface_tool, tile_pos)
-		copy_mesh(tile_type.mesh_bottom, surface_tool, tile_pos)
+		if not tile_map.has(tile_pos + Vector3i.BACK):
+			copy_mesh(tile_type.mesh_front, surface_tool, tile_pos)
+		if not tile_map.has(tile_pos + Vector3i.FORWARD):
+			copy_mesh(tile_type.mesh_back, surface_tool, tile_pos)
+		if not tile_map.has(tile_pos + Vector3i.LEFT):
+			copy_mesh(tile_type.mesh_left, surface_tool, tile_pos)
+		if not tile_map.has(tile_pos + Vector3i.RIGHT):
+			copy_mesh(tile_type.mesh_right, surface_tool, tile_pos)
+		if not tile_map.has(tile_pos + Vector3i.UP):
+			copy_mesh(tile_type.mesh_top, surface_tool, tile_pos)
+		if not tile_map.has(tile_pos + Vector3i.DOWN):
+			copy_mesh(tile_type.mesh_bottom, surface_tool, tile_pos)
 	
 	$Chunk.mesh = surface_tool.commit()
