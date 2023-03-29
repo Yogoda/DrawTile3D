@@ -4,14 +4,15 @@ extends Node3D
 @export_category("Action")
 @export var generate:bool :
 	set(value):
-		generate_()
+		generate_(value)
 
 @export_category("Params")
 
 @export var default_tile_type:TileType
 
+@export var tile_size:Vector3 = Vector3(1.0, 1.0, 1.0)
 @export var tiles_xcount:=16
-@export var tile_index:Vector2
+@export var tile_index:Vector2i
 
 var tile_map = {}
 
@@ -22,9 +23,11 @@ func _ready():
 
 func create_test_tiles():
 	
-	tile_map[Vector3(0, 0, 0)] = TileInstance.new(default_tile_type)
+	tile_map[Vector3i(0, 0, 0)] = TileInstance.new(default_tile_type)
+	tile_map[Vector3i(0, 0, 1)] = TileInstance.new(default_tile_type)
+	tile_map[Vector3i(0, 1, 0)] = TileInstance.new(default_tile_type)
 
-func copy_mesh(p_mesh:Mesh, p_surface_tool:SurfaceTool):
+func copy_mesh(p_mesh:Mesh, p_surface_tool:SurfaceTool, p_tile_pos:Vector3i):
 	
 	var mesh_data_tool:MeshDataTool = MeshDataTool.new()
 	mesh_data_tool.create_from_surface(p_mesh, 0)
@@ -45,28 +48,34 @@ func copy_mesh(p_mesh:Mesh, p_surface_tool:SurfaceTool):
 			
 			uv = uv / tiles_xcount + tile_index * (1.0 / tiles_xcount)
 
+			vertex *= tile_size / 2.0
+			vertex += p_tile_pos as Vector3 * tile_size
+
 			p_surface_tool.set_uv(uv)
 			p_surface_tool.set_normal(normal)
 			p_surface_tool.add_vertex(vertex)
 			
 	tile_index.x += 1
 
-func generate_():
+@warning_ignore("unused_parameter")
+func generate_(value):
 	
 	print("generate geometry")
 	
 	create_test_tiles()
 	
-	var tile_type:TileType = tile_map[Vector3(0, 0, 0)].tile_type
-	
 	var surface_tool:SurfaceTool = SurfaceTool.new()
 	surface_tool.begin(Mesh.PRIMITIVE_TRIANGLES)
+
+	for tile_pos in tile_map.keys():
+		
+		var tile_type:TileType = tile_map[tile_pos].tile_type
 	
-	copy_mesh(tile_type.mesh_front, surface_tool)
-	copy_mesh(tile_type.mesh_back, surface_tool)
-	copy_mesh(tile_type.mesh_left, surface_tool)
-	copy_mesh(tile_type.mesh_right, surface_tool)
-	copy_mesh(tile_type.mesh_top, surface_tool)
-	copy_mesh(tile_type.mesh_bottom, surface_tool)
+		copy_mesh(tile_type.mesh_front, surface_tool, tile_pos)
+		copy_mesh(tile_type.mesh_back, surface_tool, tile_pos)
+		copy_mesh(tile_type.mesh_left, surface_tool, tile_pos)
+		copy_mesh(tile_type.mesh_right, surface_tool, tile_pos)
+		copy_mesh(tile_type.mesh_top, surface_tool, tile_pos)
+		copy_mesh(tile_type.mesh_bottom, surface_tool, tile_pos)
 	
 	$Chunk.mesh = surface_tool.commit()
