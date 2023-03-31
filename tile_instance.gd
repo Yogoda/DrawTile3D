@@ -1,7 +1,7 @@
 extends Node
 class_name TileInstance
 
-var tile_type:TileType
+var tile_shape:TileShape
 
-func _init(p_tile_type:TileType):
-	tile_type = p_tile_type
+func _init(p_tile_shape:TileShape):
+	tile_shape = p_tile_shape

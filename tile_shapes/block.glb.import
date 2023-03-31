@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://dmmwpjc358smb"
-path="res://.godot/imported/block.glb-663288e8b9407cc5c8cbb3be3868dfdc.scn"
+path="res://.godot/imported/block.glb-179c6fb08a519204f7c982c0efb98dec.scn"
 
 [deps]
 
-source_file="res://tile_types/block.glb"
-dest_files=["res://.godot/imported/block.glb-663288e8b9407cc5c8cbb3be3868dfdc.scn"]
+source_file="res://tile_shapes/block.glb"
+dest_files=["res://.godot/imported/block.glb-179c6fb08a519204f7c982c0efb98dec.scn"]
 
 [params]
 
@@ -38,7 +38,7 @@ _subresources={
 "lods/normal_split_angle": 25.0,
 "save_to_file/enabled": true,
 "save_to_file/make_streamable": "",
-"save_to_file/path": "res://tile_types/block/block_back.res"
+"save_to_file/path": "res://tile_shapes/block/block_back.res"
 },
 "block_bottom": {
 "generate/lightmap_uv": 0,
@@ -48,7 +48,7 @@ _subresources={
 "lods/normal_split_angle": 25.0,
 "save_to_file/enabled": true,
 "save_to_file/make_streamable": "",
-"save_to_file/path": "res://tile_types/block/block_bottom.res"
+"save_to_file/path": "res://tile_shapes/block/block_bottom.res"
 },
 "block_front": {
 "generate/lightmap_uv": 0,
@@ -58,7 +58,7 @@ _subresources={
 "lods/normal_split_angle": 25.0,
 "save_to_file/enabled": true,
 "save_to_file/make_streamable": "",
-"save_to_file/path": "res://tile_types/block/block_front.res"
+"save_to_file/path": "res://tile_shapes/block/block_front.res"
 },
 "block_left": {
 "generate/lightmap_uv": 0,
@@ -68,7 +68,7 @@ _subresources={
 "lods/normal_split_angle": 25.0,
 "save_to_file/enabled": true,
 "save_to_file/make_streamable": "",
-"save_to_file/path": "res://tile_types/block/block_left.res"
+"save_to_file/path": "res://tile_shapes/block/block_left.res"
 },
 "block_right": {
 "generate/lightmap_uv": 0,
@@ -78,7 +78,7 @@ _subresources={
 "lods/normal_split_angle": 25.0,
 "save_to_file/enabled": true,
 "save_to_file/make_streamable": "",
-"save_to_file/path": "res://tile_types/block/block_right.res"
+"save_to_file/path": "res://tile_shapes/block/block_right.res"
 },
 "block_top": {
 "generate/lightmap_uv": 0,
@@ -88,7 +88,7 @@ _subresources={
 "lods/normal_split_angle": 25.0,
 "save_to_file/enabled": true,
 "save_to_file/make_streamable": "",
-"save_to_file/path": "res://tile_types/block/block_top.res"
+"save_to_file/path": "res://tile_shapes/block/block_top.res"
 }
 }
 }

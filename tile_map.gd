@@ -8,7 +8,7 @@ extends Node3D
 
 @export_category("Params")
 
-@export var default_tile_type:TileType
+@export var default_tile_shape:TileShape
 
 @export var tile_size:Vector3 = Vector3(1.0, 1.0, 1.0)
 @export var tiles_xcount:=16
@@ -23,9 +23,30 @@ func _ready():
 
 func create_test_tiles():
 	
-	tile_map[Vector3i(0, 0, 0)] = TileInstance.new(default_tile_type)
-	tile_map[Vector3i(0, 0, 1)] = TileInstance.new(default_tile_type)
-	tile_map[Vector3i(0, 1, 0)] = TileInstance.new(default_tile_type)
+	tile_map.clear()
+	
+	tile_map[Vector3i(-1, 0, -1)] = TileInstance.new(default_tile_shape)
+	tile_map[Vector3i(-1, 0, 0)] = TileInstance.new(default_tile_shape)
+	tile_map[Vector3i(-1, 0, 1)] = TileInstance.new(default_tile_shape)
+	
+	tile_map[Vector3i(-2, 0, -1)] = TileInstance.new(default_tile_shape)
+	tile_map[Vector3i(-2, 0, 0)] = TileInstance.new(default_tile_shape)
+	tile_map[Vector3i(-2, 0, 1)] = TileInstance.new(default_tile_shape)
+	
+	tile_map[Vector3i(-1, 1, -1)] = TileInstance.new(default_tile_shape)
+	tile_map[Vector3i(-1, 1, 0)] = TileInstance.new(default_tile_shape)
+	tile_map[Vector3i(-1, 1, 1)] = TileInstance.new(default_tile_shape)
+	
+	tile_map[Vector3i(-2, 1, -1)] = TileInstance.new(default_tile_shape)
+	tile_map[Vector3i(-2, 1, 0)] = TileInstance.new(default_tile_shape)
+	tile_map[Vector3i(-2, 1, 1)] = TileInstance.new(default_tile_shape)
+	
+	tile_map[Vector3i(1, 0, -1)] = TileInstance.new(default_tile_shape)
+	tile_map[Vector3i(1, 0, 0)] = TileInstance.new(default_tile_shape)
+	tile_map[Vector3i(1, 0, 1)] = TileInstance.new(default_tile_shape)
+	
+	tile_map[Vector3i(0, 0, -1)] = TileInstance.new(default_tile_shape)
+	tile_map[Vector3i(0, 0, 1)] = TileInstance.new(default_tile_shape)
 
 func copy_mesh(p_mesh:Mesh, p_surface_tool:SurfaceTool, p_tile_pos:Vector3i):
 	
@@ -69,19 +90,28 @@ func generate_(value):
 
 	for tile_pos in tile_map.keys() as Array[Vector3i]:
 		
-		var tile_type:TileType = tile_map[tile_pos].tile_type
+		var tile_shape:TileShape = tile_map[tile_pos].tile_shape
 	
 		if not tile_map.has(tile_pos + Vector3i.BACK):
-			copy_mesh(tile_type.mesh_front, surface_tool, tile_pos)
+			copy_mesh(tile_shape.mesh_front, surface_tool, tile_pos)
+			
 		if not tile_map.has(tile_pos + Vector3i.FORWARD):
-			copy_mesh(tile_type.mesh_back, surface_tool, tile_pos)
-		if not tile_map.has(tile_pos + Vector3i.LEFT):
-			copy_mesh(tile_type.mesh_left, surface_tool, tile_pos)
+			copy_mesh(tile_shape.mesh_back, surface_tool, tile_pos)
+			
 		if not tile_map.has(tile_pos + Vector3i.RIGHT):
-			copy_mesh(tile_type.mesh_right, surface_tool, tile_pos)
+			copy_mesh(tile_shape.mesh_left, surface_tool, tile_pos)
+			
+		if not tile_map.has(tile_pos + Vector3i.LEFT):
+			copy_mesh(tile_shape.mesh_right, surface_tool, tile_pos)
+			
 		if not tile_map.has(tile_pos + Vector3i.UP):
-			copy_mesh(tile_type.mesh_top, surface_tool, tile_pos)
+			copy_mesh(tile_shape.mesh_top, surface_tool, tile_pos)
+			
 		if not tile_map.has(tile_pos + Vector3i.DOWN):
-			copy_mesh(tile_type.mesh_bottom, surface_tool, tile_pos)
+			copy_mesh(tile_shape.mesh_bottom, surface_tool, tile_pos)
 	
-	$Chunk.mesh = surface_tool.commit()
+	var mesh:Mesh = surface_tool.commit()
+	var faces:Array = mesh.surface_get_arrays(0)[0]
+	
+	$Chunk.mesh = mesh
+	$CollisionShape3D.shape.set_faces(faces)

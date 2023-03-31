@@ -1,5 +1,5 @@
 extends Resource
-class_name TileType
+class_name TileShape
 
 @export var mesh_front:Mesh
 @export var mesh_back:Mesh
