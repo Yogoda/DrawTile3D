@@ -1,10 +1,13 @@
 @tool
 extends Node3D
+class_name TileMap3D
 
 @export_category("Action")
 @export var generate:bool :
 	set(value):
 		generate_(value)
+		
+@export var reset:bool = false
 
 @export_category("Params")
 
@@ -48,6 +51,11 @@ func create_test_tiles():
 	tile_map[Vector3i(0, 0, -1)] = TileInstance.new(default_tile_shape)
 	tile_map[Vector3i(0, 0, 1)] = TileInstance.new(default_tile_shape)
 
+func set_tile(pos:Vector3i):
+	
+	tile_map[pos] = TileInstance.new(default_tile_shape)
+	generate_(true)
+
 func copy_mesh(p_mesh:Mesh, p_surface_tool:SurfaceTool, p_tile_pos:Vector3i):
 	
 	var mesh_data_tool:MeshDataTool = MeshDataTool.new()
@@ -83,7 +91,8 @@ func generate_(value):
 	
 	print("generate geometry")
 	
-	create_test_tiles()
+	if reset:
+		create_test_tiles()
 	
 	var surface_tool:SurfaceTool = SurfaceTool.new()
 	surface_tool.begin(Mesh.PRIMITIVE_TRIANGLES)
