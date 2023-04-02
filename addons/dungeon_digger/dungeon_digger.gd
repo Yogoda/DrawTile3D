@@ -51,33 +51,36 @@ func _forward_3d_gui_input(camera, event):
 		if event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 			
 			var info = get_cursor_info(event.position, camera)
-
-			var root = get_tree().get_edited_scene_root()
 			
-			var selected_nodes = get_editor_interface().get_selection().get_selected_nodes()
-
-			if selected_nodes.size() >= 1:
-
-				var selected_node:Node = selected_nodes[0]
-				
-				if selected_node is MeshInstance3D:
+			if info.position != null and info.normal != null:
 					
-					var tile_map = selected_node.get_parent()
-					if tile_map is TileMap3D:
-						
-#						print("TileMap3D!")
+				var root = get_tree().get_edited_scene_root()
+				
+				var selected_nodes = get_editor_interface().get_selection().get_selected_nodes()
 
-#						print(info.position, info.normal)
+				if selected_nodes.size() >= 1:
+
+					var selected_node:Node = selected_nodes[0]
+					
+					if selected_node is MeshInstance3D:
 						
-						var selected_tile:Vector3 = info.position - info.normal * tile_map.tile_size / 2.0
-						
-						selected_tile = (selected_tile + tile_map.tile_size / 2.0) / tile_map.tile_size
-#						print("selected tile:", selected_tile)
-						selected_tile = selected_tile.floor()
-						print("selected tile:", selected_tile)
-						
-						tile_map.set_tile(selected_tile as Vector3i)
-			
+						var tile_map = selected_node.get_parent()
+						if tile_map is TileMap3D:
+							
+	#						print("TileMap3D!")
+
+							print(info.position, info.normal)
+							
+							var selected_tile:Vector3 = info.position - info.normal * tile_map.tile_size / 2.0
+							
+							selected_tile = (selected_tile + tile_map.tile_size / 2.0) / tile_map.tile_size
+	#						print("selected tile:", selected_tile)
+							selected_tile = selected_tile.floor()
+							print("selected tile:", selected_tile)
+							
+							tile_map.set_tile(selected_tile as Vector3i)
+							tile_map.generate_mesh(true)
+				
 
 #	return EditorPlugin.AFTER_GUI_INPUT_STOP
 	return EditorPlugin.AFTER_GUI_INPUT_PASS
