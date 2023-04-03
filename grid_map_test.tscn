@@ -1,6 +1,7 @@
 [gd_scene load_steps=4 format=3]
 
-[ext_resource type="ArrayMesh" uid="uid://3ub0gb22e8wf" path="res://tile_shapes/block/block_bottom.res" id="1_pbbg1"]
+[ext_resource type="ArrayMesh" uid="uid://3ub0gb22e8wf" path="res://addons/dungeon_digger/tile_shapes/block/block_bottom.res" id="1_pbbg1"]
+
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_6gekv"]
 

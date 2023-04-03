@@ -1,15 +1,7 @@
 @tool
 extends EditorPlugin
 
-
-# Called when the node enters the scene tree for the first time.
-#func _ready():
-#	pass # Replace with function body.
-#
-#
-## Called every frame. 'delta' is the elapsed time since the previous frame.
-#func _process(delta):
-#	pass
+var tile_test:Tile3D = preload("res://addons/dungeon_digger/tiles/tile_test.tres")
 
 func _enter_tree():
 	
@@ -67,20 +59,19 @@ func _forward_3d_gui_input(camera, event):
 						var tile_map = selected_node.get_parent()
 						if tile_map is TileMap3D:
 							
-	#						print("TileMap3D!")
+	#						print("found TileMap3D!")
 
-							print(info.position, info.normal)
+#							print(info.position, info.normal)
 							
-							var selected_tile:Vector3 = info.position - info.normal * tile_map.tile_size / 2.0
+							var tile_pos:Vector3 = info.position - info.normal * tile_map.tile_size / 2.0
 							
-							selected_tile = (selected_tile + tile_map.tile_size / 2.0) / tile_map.tile_size
+							tile_pos = (tile_pos + tile_map.tile_size / 2.0) / tile_map.tile_size
 	#						print("selected tile:", selected_tile)
-							selected_tile = selected_tile.floor()
-							print("selected tile:", selected_tile)
+							tile_pos = tile_pos.floor()
+#							print("selected tile:", selected_tile)
 							
-							tile_map.set_tile(selected_tile as Vector3i)
+							tile_map.set_tile(tile_pos as Vector3i, tile_test)
 							tile_map.generate_mesh(true)
-				
 
 #	return EditorPlugin.AFTER_GUI_INPUT_STOP
 	return EditorPlugin.AFTER_GUI_INPUT_PASS

@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://dmmwpjc358smb"
-path="res://.godot/imported/block.glb-179c6fb08a519204f7c982c0efb98dec.scn"
+path="res://.godot/imported/block.glb-b654072062a0aea4c3f2429029ab7999.scn"
 
 [deps]
 
-source_file="res://tile_shapes/block.glb"
-dest_files=["res://.godot/imported/block.glb-179c6fb08a519204f7c982c0efb98dec.scn"]
+source_file="res://addons/dungeon_digger/tile_shapes/block/block.glb"
+dest_files=["res://.godot/imported/block.glb-b654072062a0aea4c3f2429029ab7999.scn"]
 
 [params]
 
