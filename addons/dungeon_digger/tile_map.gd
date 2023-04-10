@@ -21,13 +21,14 @@ class_name TileMap3D
 @export var tiles_xcount:=16
 @export var tile_index:Vector2i
 
-var tile_map = {}
+@export var tile_map = {}
 var tile_chunks = {}
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	
-	pass
+	set_meta("_edit_lock_", true)
+	set_meta("_edit_group_", true)
 
 func create_test_tiles():
 	
@@ -58,6 +59,16 @@ func create_test_tiles():
 	set_tile(Vector3i(0, 0, -1), tile)
 	set_tile(Vector3i(0, 0, 1), tile)
 
+func coord_to_tile_pos(p_coord:Vector3) -> Vector3i:
+	
+	var tile_pos = p_coord
+	
+	tile_pos = (tile_pos + tile_size / 2.0) / tile_size
+#						print("selected tile:", selected_tile)
+	tile_pos = tile_pos.floor()
+#							print("selected tile:", selected_tile)
+	return tile_pos as Vector3i
+
 func set_tile(p_pos:Vector3i, p_tile:Tile3D = null):
 	
 	if p_tile == null:
@@ -69,6 +80,10 @@ func set_tile(p_pos:Vector3i, p_tile:Tile3D = null):
 #	print("set tile", p_tile)
 
 	tile_map[p_pos] = p_tile
+	
+func remove_tile(p_pos:Vector3i):
+	
+	tile_map.erase(p_pos)
 
 func copy_mesh(p_mesh_to_copy:Mesh, 
 				p_surface_tool:SurfaceTool, 
@@ -186,4 +201,77 @@ func generate_mesh(value):
 	var faces:Array = mesh.surface_get_arrays(0)[0]
 	$CollisionShape3D.shape.set_faces(faces)
 	
-	print("geometry generated")
+#	print("geometry generated")
+
+func set_pixel(p_pos:Vector2i, color:Color):
+	
+	var material:StandardMaterial3D = $Chunk.material_override
+	var texture:Texture2D = material.albedo_texture
+	#get a copy of the image
+	var image:Image = texture.get_image()
+
+	image.set_pixel(p_pos.x, p_pos.y, color)
+	print("set pixel:", p_pos.x, " ", p_pos.y, " ", color)
+	
+#	texture_2d_update
+	RenderingServer.texture_2d_update(texture.get_rid(), image, 0)
+
+	var image_texture = ImageTexture.create_from_image(image)
+
+	var err = ResourceSaver.save(image_texture, "atlas.image_texture.res")
+
+func barycentric_coordinates(v_a:Vector3, v_b:Vector3, v_c:Vector3, p:Vector3) -> Vector3:
+	
+	# Calculate vectors
+	var v0 = v_b - v_a
+	var v1 = v_c - v_a
+	var v2 = p - v_a
+
+	# Calculate dot products
+	var dot00 = v0.dot(v0)
+	var dot01 = v0.dot(v1)
+	var dot11 = v1.dot(v1)
+	var dot20 = v2.dot(v0)
+	var dot21 = v2.dot(v1)
+
+	# Calculate barycentric coordinates
+	var inv_denom = 1.0 / (dot00 * dot11 - dot01 * dot01)
+	var v = (dot11 * dot20 - dot01 * dot21) * inv_denom
+	var w = (dot00 * dot21 - dot01 * dot20) * inv_denom
+	var u = 1.0 - v - w
+
+	return Vector3(u, v, w)
+
+func ray_to_pixel_pos(ray_from:Vector3, ray_dir:Vector3) -> Vector2i:
+	
+	var mesh:Mesh = $Chunk.mesh
+	
+	var mesh_data_tool:MeshDataTool = MeshDataTool.new()
+	mesh_data_tool.create_from_surface(mesh, 0)
+
+	var uv:Vector2
+
+	for face_index in range(mesh_data_tool.get_face_count()):
+		
+		var vi_a = mesh_data_tool.get_face_vertex(face_index, 0)
+		var vi_b = mesh_data_tool.get_face_vertex(face_index, 1)
+		var vi_c = mesh_data_tool.get_face_vertex(face_index, 2)
+
+		var v_a = mesh_data_tool.get_vertex(vi_a)
+		var v_b = mesh_data_tool.get_vertex(vi_b)
+		var v_c = mesh_data_tool.get_vertex(vi_c)
+		
+		var pos = Geometry3D.ray_intersects_triangle(ray_from, ray_dir, v_a, v_b, v_c)
+		
+		if pos:
+
+			var uv_a = mesh_data_tool.get_vertex_uv(vi_a)
+			var uv_b = mesh_data_tool.get_vertex_uv(vi_b)
+			var uv_c = mesh_data_tool.get_vertex_uv(vi_c)
+
+			var bc = barycentric_coordinates(v_a, v_b, v_c, pos)
+			
+			uv.x = bc.x * uv_a.x + bc.y * uv_b.x + bc.z * uv_c.x
+			uv.y = bc.x * uv_a.y + bc.y * uv_b.y + bc.z * uv_c.y
+	
+	return (uv * 256) as Vector2i

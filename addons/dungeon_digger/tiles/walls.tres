@@ -1,15 +1,15 @@
 [gd_resource type="Resource" script_class="Tile3D" load_steps=3 format=3 uid="uid://b0str2c3mud56"]
 
 [ext_resource type="Script" path="res://addons/dungeon_digger/tile3d.gd" id="1_fithn"]
-[ext_resource type="Resource" path="res://addons/dungeon_digger/tile_shapes/block/cube.tile_shape.tres" id="2_gq5k6"]
+[ext_resource type="Resource" uid="uid://c3knqhlvgu1y5" path="res://addons/dungeon_digger/tile_shapes/block/cube.tile_shape.tres" id="2_gq5k6"]
 
 [resource]
 script = ExtResource("1_fithn")
 tile_shape = ExtResource("2_gq5k6")
-tex_index = Vector2i(0, 1)
-tex_index_top = Vector2i(1, 0)
-tex_index_bottom = Vector2i(0, 1)
+tex_index = Vector2i(0, 0)
+tex_index_up = Vector2i(1, 0)
+tex_index_down = Vector2i(0, 1)
 tex_index_left = Vector2i(-1, -1)
 tex_index_right = Vector2i(-1, -1)
-tex_index_front = Vector2i(-1, -1)
+tex_index_forward = Vector2i(-1, -1)
 tex_index_back = Vector2i(-1, -1)
