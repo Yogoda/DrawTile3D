@@ -6,6 +6,7 @@ var mode:paint_mode = paint_mode.MODE_PIXELS
 
 var tile_test:Tile3D = preload("res://addons/dungeon_digger/tiles/tile_test.tres")
 
+var selected_color:Color = Color.AQUA
 
 func _enter_tree():
 	
@@ -46,49 +47,66 @@ func get_cursor_info(mouse_pos, camera, depth=800):
 
 	return {position=position, normal=normal, collider=collider, ray_from=from, ray_dir=ray_dir}
 
+func tilemap_action(cursor_info, remove_mode:bool, copy_mode:bool):
+	
+	if cursor_info.position != null and cursor_info.normal != null:
+			
+#				var root = get_tree().get_edited_scene_root()
+		
+		if cursor_info.collider is TileMap3D:
+#					print("TileMap3D")
+			var tile_map:TileMap3D = cursor_info.collider
+			
+			if mode == paint_mode.MODE_PIXELS:
+				
+				var pixel_pos:Vector2i = tile_map.ray_to_pixel_pos(cursor_info.ray_from, cursor_info.ray_dir)
+				
+				print("set pixel:", pixel_pos)
+				
+				if copy_mode:
+					selected_color = tile_map.get_pixel(pixel_pos)
+				else:
+					tile_map.set_pixel(pixel_pos, selected_color)
+				
+			elif mode == paint_mode.MODE_BLOCKS:
+			
+				var direction = -1.0
+				
+				if remove_mode:
+					direction = 1.0
+				
+				var tile_pos = tile_map.coord_to_tile_pos(cursor_info.position + direction * cursor_info.normal * tile_map.tile_size / 2.0)
+				
+				if remove_mode:
+					tile_map.remove_tile(tile_pos)
+					print("remove block:", tile_pos)
+				else:
+					tile_map.set_tile(tile_pos)
+					print("set block:", tile_pos)
+
+				tile_map.generate_mesh(true)
 
 func _forward_3d_gui_input(camera, event):
 	
-	if event is InputEventMouseButton:
+#	print(event)
+	
+	if event is InputEventMouseMotion:
+		
+		if event.button_mask == MOUSE_BUTTON_MASK_LEFT:
+			
+			var cursor_info = get_cursor_info(event.position, camera)
+			
+			tilemap_action(cursor_info, event.shift_pressed, event.ctrl_pressed)
+	
+	elif event is InputEventMouseButton:
 		
 		if event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 			
-			var remove_mode:bool = event.shift_pressed
+			var cursor_info = get_cursor_info(event.position, camera)
 			
-			var info = get_cursor_info(event.position, camera)
+			tilemap_action(cursor_info, event.shift_pressed, event.ctrl_pressed)
 			
-			if info.position != null and info.normal != null:
-					
-#				var root = get_tree().get_edited_scene_root()
-				
-				if info.collider is TileMap3D:
-#					print("TileMap3D")
-					var tile_map:TileMap3D = info.collider
-					
-					if mode == paint_mode.MODE_PIXELS:
-						
-						var pixel_pos:Vector2i = tile_map.ray_to_pixel_pos(info.ray_from, info.ray_dir)
-						
-						print("set pixel:", pixel_pos)
-						tile_map.set_pixel(pixel_pos, Color.BLUE)
-						
-					elif mode == paint_mode.MODE_BLOCKS:
-					
-						var direction = -1.0
-						
-						if remove_mode:
-							direction = 1.0
-						
-						var tile_pos = tile_map.coord_to_tile_pos(info.position + direction * info.normal * tile_map.tile_size / 2.0)
-						
-						if remove_mode:
-							tile_map.remove_tile(tile_pos)
-							print("remove block:", tile_pos)
-						else:
-							tile_map.set_tile(tile_pos)
-							print("set block:", tile_pos)
 
-						tile_map.generate_mesh(true)
 					
 #				var selected_nodes = get_editor_interface().get_selection().get_selected_nodes()
 #
@@ -106,9 +124,9 @@ func _forward_3d_gui_input(camera, event):
 #							print(info.position, info.normal)
 
 #	return EditorPlugin.AFTER_GUI_INPUT_STOP
-	return EditorPlugin.AFTER_GUI_INPUT_PASS
+#	return EditorPlugin.AFTER_GUI_INPUT_PASS
+	return EditorPlugin.AFTER_GUI_INPUT_CUSTOM
 
 
 func _input(event):
 	return
-	print("_asdfinput:", event)

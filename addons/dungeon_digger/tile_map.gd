@@ -211,7 +211,7 @@ func set_pixel(p_pos:Vector2i, color:Color):
 	var image:Image = texture.get_image()
 
 	image.set_pixel(p_pos.x, p_pos.y, color)
-	print("set pixel:", p_pos.x, " ", p_pos.y, " ", color)
+#	print("set pixel:", p_pos.x, " ", p_pos.y, " ", color)
 	
 #	texture_2d_update
 	RenderingServer.texture_2d_update(texture.get_rid(), image, 0)
@@ -219,6 +219,15 @@ func set_pixel(p_pos:Vector2i, color:Color):
 	var image_texture = ImageTexture.create_from_image(image)
 
 	var err = ResourceSaver.save(image_texture, "atlas.image_texture.res")
+
+func get_pixel(p_pos:Vector2i) -> Color:
+	
+	var material:StandardMaterial3D = $Chunk.material_override
+	var texture:Texture2D = material.albedo_texture
+	#get a copy of the image
+	var image:Image = texture.get_image()
+
+	return image.get_pixel(p_pos.x, p_pos.y)
 
 func barycentric_coordinates(v_a:Vector3, v_b:Vector3, v_c:Vector3, p:Vector3) -> Vector3:
 	
@@ -263,15 +272,23 @@ func ray_to_pixel_pos(ray_from:Vector3, ray_dir:Vector3) -> Vector2i:
 		
 		var pos = Geometry3D.ray_intersects_triangle(ray_from, ray_dir, v_a, v_b, v_c)
 		
+		var dist_min:float = 1000
+		
 		if pos:
 
-			var uv_a = mesh_data_tool.get_vertex_uv(vi_a)
-			var uv_b = mesh_data_tool.get_vertex_uv(vi_b)
-			var uv_c = mesh_data_tool.get_vertex_uv(vi_c)
-
-			var bc = barycentric_coordinates(v_a, v_b, v_c, pos)
+			var dist:float = ray_from.distance_to(pos)
 			
-			uv.x = bc.x * uv_a.x + bc.y * uv_b.x + bc.z * uv_c.x
-			uv.y = bc.x * uv_a.y + bc.y * uv_b.y + bc.z * uv_c.y
+			if dist < dist_min:
+
+				dist_min = dist
+				
+				var uv_a = mesh_data_tool.get_vertex_uv(vi_a)
+				var uv_b = mesh_data_tool.get_vertex_uv(vi_b)
+				var uv_c = mesh_data_tool.get_vertex_uv(vi_c)
+
+				var bc = barycentric_coordinates(v_a, v_b, v_c, pos)
+				
+				uv.x = bc.x * uv_a.x + bc.y * uv_b.x + bc.z * uv_c.x
+				uv.y = bc.x * uv_a.y + bc.y * uv_b.y + bc.z * uv_c.y
 	
 	return (uv * 256) as Vector2i
