@@ -1,0 +1,76 @@
+[gd_scene load_steps=4 format=3 uid="uid://bpeefevp7dhdq"]
+
+[ext_resource type="Script" path="res://addons/dungeon_digger/dungeon_digger_panel.gd" id="1_dn8gi"]
+[ext_resource type="Texture2D" uid="uid://b144s5l7e4nhu" path="res://icon.png" id="1_mc8ty"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_id5c0"]
+
+[node name="DungeonDigger" type="PanelContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_id5c0")
+script = ExtResource("1_dn8gi")
+
+[node name="BoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="BoxContainer"]
+layout_mode = 2
+text = "DungeonDigger"
+
+[node name="Color" type="HBoxContainer" parent="BoxContainer"]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+
+[node name="Label" type="Label" parent="BoxContainer/Color"]
+layout_mode = 2
+text = "Draw Color"
+
+[node name="SelectedColor" type="ColorPickerButton" parent="BoxContainer/Color"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(30, 30)
+layout_mode = 2
+
+[node name="GridContainer" type="GridContainer" parent="BoxContainer"]
+layout_mode = 2
+columns = 3
+
+[node name="TextureRect" type="TextureRect" parent="BoxContainer/GridContainer"]
+layout_mode = 2
+texture = ExtResource("1_mc8ty")
+stretch_mode = 2
+
+[node name="TextureRect2" type="TextureRect" parent="BoxContainer/GridContainer"]
+layout_mode = 2
+texture = ExtResource("1_mc8ty")
+stretch_mode = 2
+
+[node name="TextureRect3" type="TextureRect" parent="BoxContainer/GridContainer"]
+layout_mode = 2
+texture = ExtResource("1_mc8ty")
+stretch_mode = 2
+
+[node name="TextureRect4" type="TextureRect" parent="BoxContainer/GridContainer"]
+layout_mode = 2
+texture = ExtResource("1_mc8ty")
+stretch_mode = 2
+
+[node name="TextureRect5" type="TextureRect" parent="BoxContainer/GridContainer"]
+layout_mode = 2
+texture = ExtResource("1_mc8ty")
+stretch_mode = 2
+
+[node name="TextureRect6" type="TextureRect" parent="BoxContainer/GridContainer"]
+layout_mode = 2
+texture = ExtResource("1_mc8ty")
+stretch_mode = 2
+
+[node name="TextureRect7" type="TextureRect" parent="BoxContainer/GridContainer"]
+layout_mode = 2
+texture = ExtResource("1_mc8ty")
+stretch_mode = 2
+
+[connection signal="color_changed" from="BoxContainer/Color/SelectedColor" to="." method="_on_draw_color_color_changed"]
