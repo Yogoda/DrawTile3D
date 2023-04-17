@@ -20,3 +20,8 @@ skeleton = NodePath("../..")
 
 [node name="Camera" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.4733, 0)
+
+[node name="OmniLight3D" type="OmniLight3D" parent="."]
+light_energy = 10.263
+omni_range = 17.0
+omni_attenuation = 2.73208

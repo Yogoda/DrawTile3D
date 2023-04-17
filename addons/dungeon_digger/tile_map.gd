@@ -260,6 +260,10 @@ func ray_to_pixel_pos(ray_from:Vector3, ray_dir:Vector3) -> Vector2i:
 
 	var uv:Vector2
 
+	#several triangles might get intersected by the ray, returns the closes one
+	var dist_min:float = 1000
+
+	#check each triangle for intersection with the ray
 	for face_index in range(mesh_data_tool.get_face_count()):
 		
 		var vi_a = mesh_data_tool.get_face_vertex(face_index, 0)
@@ -272,8 +276,7 @@ func ray_to_pixel_pos(ray_from:Vector3, ray_dir:Vector3) -> Vector2i:
 		
 		var pos = Geometry3D.ray_intersects_triangle(ray_from, ray_dir, v_a, v_b, v_c)
 		
-		var dist_min:float = 1000
-		
+		#ray intersects triangle
 		if pos:
 
 			var dist:float = ray_from.distance_to(pos)
@@ -291,4 +294,5 @@ func ray_to_pixel_pos(ray_from:Vector3, ray_dir:Vector3) -> Vector2i:
 				uv.x = bc.x * uv_a.x + bc.y * uv_b.x + bc.z * uv_c.x
 				uv.y = bc.x * uv_a.y + bc.y * uv_b.y + bc.z * uv_c.y
 	
+	#TODO image size
 	return (uv * 256) as Vector2i
