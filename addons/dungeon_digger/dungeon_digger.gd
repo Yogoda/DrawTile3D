@@ -1,40 +1,42 @@
 @tool
 extends EditorPlugin
 
-enum paint_mode {MODE_BLOCKS, MODE_PIXELS}
-var mode:paint_mode = paint_mode.MODE_PIXELS
+#enum paint_mode {MODE_BLOCKS, MODE_PIXELS}
+#var mode:paint_mode = paint_mode.MODE_PIXELS
 
 var tile_test:Tile3D = preload("res://addons/dungeon_digger/tiles/tile_test.tres")
 
 #var selected_color:Color = Color.AQUA
 
-var dungeon_digger_panel
+var dd_panel
 
 #func _enter_tree():
+
+#	_enable_plugin()
 #
-#	dungeon_digger_panel = preload("res://addons/dungeon_digger/dungeon_digger_panel.tscn").instantiate()
-#	add_control_to_dock(DOCK_SLOT_RIGHT_UL, dungeon_digger_panel)
-##	add_control_to_bottom_panel(dungeon_digger_panel, "DungeonDigger")
+#	dd_panel = preload("res://addons/dungeon_digger/dd_panel.tscn").instantiate()
+#	add_control_to_dock(DOCK_SLOT_RIGHT_UL, dd_panel)
+##	add_control_to_bottom_panel(dd_panel, "DungeonDigger")
 #	set_input_event_forwarding_always_enabled()
 #
 #func _exit_tree():
 #
-#	remove_control_from_docks(dungeon_digger_panel)
-##	remove_control_from_bottom_panel(dungeon_digger_panel)
-#	dungeon_digger_panel.queue_free()
+#	remove_control_from_docks(dd_panel)
+##	remove_control_from_bottom_panel(dd_panel)
+#	dd_panel.queue_free()
 	
 func _enable_plugin():
 	
-	dungeon_digger_panel = preload("res://addons/dungeon_digger/dungeon_digger_panel.tscn").instantiate()
-	add_control_to_dock(DOCK_SLOT_RIGHT_UL, dungeon_digger_panel)
-#	add_control_to_bottom_panel(dungeon_digger_panel, "DungeonDigger")
+	dd_panel = preload("res://addons/dungeon_digger/dungeon_digger_panel.tscn").instantiate()
+#	add_control_to_dock(DOCK_SLOT_RIGHT_UL, dd_panel)
+	add_control_to_bottom_panel(dd_panel, "DungeonDigger")
 	set_input_event_forwarding_always_enabled()
 	
 func _disable_plugin():
 	
-	remove_control_from_docks(dungeon_digger_panel)
-#	remove_control_from_bottom_panel(dungeon_digger_panel)
-	dungeon_digger_panel.queue_free()
+#	remove_control_from_docks(dd_panel)
+	remove_control_from_bottom_panel(dd_panel)
+#	dd_panel.queue_free()
 
 func get_cursor_info(mouse_pos, camera, depth=800):
 	
@@ -80,7 +82,7 @@ func tilemap_action(cursor_info, remove_mode:bool, copy_mode:bool):
 #					print("TileMap3D")
 			var tile_map:TileMap3D = cursor_info.collider
 			
-			if mode == paint_mode.MODE_PIXELS:
+			if dd_panel.draw_mode == dd_panel.DRAW_MODE.PIXEL:
 				
 				var pixel_pos:Vector2i = tile_map.ray_to_pixel_pos(cursor_info.ray_from, cursor_info.ray_dir)
 				
@@ -88,11 +90,11 @@ func tilemap_action(cursor_info, remove_mode:bool, copy_mode:bool):
 				
 				if copy_mode:
 					var color = tile_map.get_pixel(pixel_pos)
-					dungeon_digger_panel.set_selected_color(color)
+					dd_panel.set_selected_color(color)
 				else:
-					tile_map.set_pixel(pixel_pos, dungeon_digger_panel.selected_color)
+					tile_map.set_pixel(pixel_pos, dd_panel.selected_color)
 				
-			elif mode == paint_mode.MODE_BLOCKS:
+			elif dd_panel.draw_mode == dd_panel.DRAW_MODE.TILE3D:
 			
 				var direction = -1.0
 				
@@ -114,7 +116,7 @@ func _forward_3d_gui_input(camera, event):
 	
 #	print(event)
 	
-	if event is InputEventMouseMotion:
+	if event is InputEventMouseMotion and dd_panel.draw_mode == dd_panel.DRAW_MODE.PIXEL:
 		
 		if event.button_mask == MOUSE_BUTTON_MASK_LEFT:
 			
