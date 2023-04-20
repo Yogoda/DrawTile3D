@@ -24,6 +24,8 @@ var tile_chunks = {}
 
 var tile_shape_cube:TileShape = preload("res://addons/dungeon_digger/tile_shapes/block/cube.tile_shape.tres")
 
+var dd_panel:DungeonDiggerPanel
+
 var selected_tile_2D:int
 var selected_tile_3D:Tile3D
 
@@ -33,19 +35,24 @@ func _ready():
 	set_meta("_edit_lock_", true)
 	set_meta("_edit_group_", true)
 
+func get_selected_tile_2D():
+	
+	if dd_panel == null:
+		dd_panel = get_tree().get_meta("__dungeon_digger_panel")
+		
+	return dd_panel.selected_tile_2D
+
 func create_test_tiles():
 	
 	tile_map.clear()
 	
-	var tile_2D:int
+#	var tile_2D:int
 	
-	var dd_panel:DungeonDiggerPanel = get_tree().get_meta("__dungeon_digger_panel")
+#	print("selected tile:", dd_panel.selected_tile_2D)
 	
-	print("selected tile:", dd_panel.selected_tile_2D)
+#	selected_tile_3D = Tile3D.new(tile_shape_cube, dd_panel.selected_tile_2D)
 	
-	selected_tile_3D = Tile3D.new(tile_shape_cube, dd_panel.selected_tile_2D)
-	
-	var tile = selected_tile_3D
+	var tile = get_selected_tile_2D()
 	
 	set_tile_3D(Vector3i(-1, 0, -1), tile)
 	set_tile_3D(Vector3i(-1, 0, 0), tile)
@@ -80,21 +87,35 @@ func coord_to_tile_pos(p_coord:Vector3) -> Vector3i:
 #							print("selected tile:", selected_tile)
 	return tile_pos as Vector3i
 
-func set_tile_3D(p_pos:Vector3i, p_tile:Tile3D = null):
+func set_tile_3D(p_pos:Vector3i, p_tile:int):
 	
-	if p_tile == null:
-		p_tile = selected_tile_3D
-		
-	if selected_tile_3D == null:
-		print("no selected tile!")
+	var tile_3D = Tile3D.new(tile_shape_cube, p_tile)
 
-#	print("set tile", p_tile)
-
-	tile_map[p_pos] = p_tile
+	tile_map[p_pos] = tile_3D
 	
 func remove_tile_3D(p_pos:Vector3i):
 	
 	tile_map.erase(p_pos)
+
+func set_tile_2D(p_tile_pos:Vector3i, p_face:Vector3i):
+	
+	var dd_panel:DungeonDiggerPanel = get_tree().get_meta("__dungeon_digger_panel")
+
+	var tile_2D = dd_panel.selected_tile_2D
+	
+	match p_face:
+		Vector3i.DOWN:
+			tile_map[p_tile_pos].tile_2D_down = tile_2D
+		Vector3i.UP:
+			tile_map[p_tile_pos].tile_2D_up = tile_2D
+		Vector3i.LEFT:
+			tile_map[p_tile_pos].tile_2D_left = tile_2D
+		Vector3i.RIGHT:
+			tile_map[p_tile_pos].tile_2D_right = tile_2D
+		Vector3i.BACK:
+			tile_map[p_tile_pos].tile_2D_back = tile_2D
+		Vector3i.FORWARD:
+			tile_map[p_tile_pos].tile_2D_forward = tile_2D
 
 func copy_mesh(p_mesh_to_copy:Mesh, 
 				p_surface_tool:SurfaceTool, 
@@ -188,10 +209,10 @@ func generate_mesh(value):
 		var tile_shape:TileShape = tile.tile_shape
 
 		if not tile_map.has(tile_pos + Vector3i.LEFT):
-			copy_mesh(tile_shape.mesh_right, surface_tool, tile_pos, get_tile_tex(tile, Vector3i.RIGHT))
+			copy_mesh(tile_shape.mesh_right, surface_tool, tile_pos, get_tile_tex(tile, Vector3i.LEFT))
 	
 		if not tile_map.has(tile_pos + Vector3i.RIGHT):
-			copy_mesh(tile_shape.mesh_left, surface_tool, tile_pos, get_tile_tex(tile, Vector3i.LEFT))
+			copy_mesh(tile_shape.mesh_left, surface_tool, tile_pos, get_tile_tex(tile, Vector3i.RIGHT))
 			
 		if not tile_map.has(tile_pos + Vector3i.UP):
 			copy_mesh(tile_shape.mesh_up, surface_tool, tile_pos, get_tile_tex(tile, Vector3i.UP))
@@ -200,7 +221,7 @@ func generate_mesh(value):
 			copy_mesh(tile_shape.mesh_down, surface_tool, tile_pos, get_tile_tex(tile, Vector3i.DOWN))
 			
 		if not tile_map.has(tile_pos + Vector3i.BACK):
-			copy_mesh(tile_shape.mesh_forward, surface_tool, tile_pos, get_tile_tex(tile, Vector3i.FORWARD))
+			copy_mesh(tile_shape.mesh_forward, surface_tool, tile_pos, get_tile_tex(tile, Vector3i.BACK))
 			
 		if not tile_map.has(tile_pos + Vector3i.FORWARD):
 			copy_mesh(tile_shape.mesh_back, surface_tool, tile_pos, get_tile_tex(tile, Vector3i.FORWARD))
@@ -277,6 +298,12 @@ func ray_to_pixel_pos(ray_from:Vector3, ray_dir:Vector3) -> Vector2i:
 
 	#check each triangle for intersection with the ray
 	for face_index in range(mesh_data_tool.get_face_count()):
+		
+		var normal:Vector3 = mesh_data_tool.get_face_normal(face_index)
+		
+		#skip backface triangles
+		if ray_dir.dot(normal) >= 0:
+			continue
 		
 		var vi_a = mesh_data_tool.get_face_vertex(face_index, 0)
 		var vi_b = mesh_data_tool.get_face_vertex(face_index, 1)
