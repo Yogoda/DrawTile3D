@@ -1,13 +1,6 @@
 @tool
 extends EditorPlugin
 
-#enum paint_mode {MODE_BLOCKS, MODE_PIXELS}
-#var mode:paint_mode = paint_mode.MODE_PIXELS
-
-var tile_test:Tile3D = preload("res://addons/dungeon_digger/tiles/tile_test.tres")
-
-#var selected_color:Color = Color.AQUA
-
 var dd_panel
 
 #func _enter_tree():
@@ -28,6 +21,7 @@ var dd_panel
 func _enable_plugin():
 	
 	dd_panel = preload("res://addons/dungeon_digger/dungeon_digger_panel.tscn").instantiate()
+	get_tree().set_meta("__dungeon_digger_panel", dd_panel)
 #	add_control_to_dock(DOCK_SLOT_RIGHT_UL, dd_panel)
 	add_control_to_bottom_panel(dd_panel, "DungeonDigger")
 	set_input_event_forwarding_always_enabled()
@@ -104,10 +98,10 @@ func tilemap_action(cursor_info, remove_mode:bool, copy_mode:bool):
 				var tile_pos = tile_map.coord_to_tile_pos(cursor_info.position + direction * cursor_info.normal * tile_map.tile_size / 2.0)
 				
 				if remove_mode:
-					tile_map.remove_tile(tile_pos)
+					tile_map.remove_tile_3D(tile_pos)
 					print("remove block:", tile_pos)
 				else:
-					tile_map.set_tile(tile_pos)
+					tile_map.set_tile_3D(tile_pos)
 					print("set block:", tile_pos)
 
 				tile_map.generate_mesh(true)
@@ -132,23 +126,6 @@ func _forward_3d_gui_input(camera, event):
 			
 			tilemap_action(cursor_info, event.shift_pressed, event.ctrl_pressed)
 			
-
-					
-#				var selected_nodes = get_editor_interface().get_selection().get_selected_nodes()
-#
-#				if selected_nodes.size() >= 1:
-#
-#					var selected_node:Node = selected_nodes[0]
-#
-#					if selected_node is MeshInstance3D:
-#
-#						var tile_map = selected_node.get_parent()
-#						if tile_map is TileMap3D:
-							
-	#						print("found TileMap3D!")
-
-#							print(info.position, info.normal)
-
 #	return EditorPlugin.AFTER_GUI_INPUT_STOP
 #	return EditorPlugin.AFTER_GUI_INPUT_PASS
 	return EditorPlugin.AFTER_GUI_INPUT_CUSTOM

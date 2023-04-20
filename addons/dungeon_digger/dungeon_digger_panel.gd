@@ -1,10 +1,13 @@
 @tool
 extends PanelContainer
 
+class_name DungeonDiggerPanel
+
 enum DRAW_MODE {PIXEL, TILE2D, TILE3D}
 var draw_mode = DRAW_MODE.TILE3D
 
 var selected_color:Color = Color.CORNFLOWER_BLUE
+var selected_tile_2D:int = -1
 
 func _ready():
 	
@@ -44,3 +47,7 @@ func _on_btn_mode_tile_2d_pressed():
 
 func _on_btn_mode_pixel_pressed():
 	draw_mode = DRAW_MODE.PIXEL
+
+func _on_tile_2d_list_item_selected(index):
+	
+	selected_tile_2D = index
