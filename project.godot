@@ -18,7 +18,7 @@ config/icon="res://icon.png"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/QuickPluginManager/plugin.cfg", "res://addons/dungeon_digger/plugin.cfg")
+enabled=PackedStringArray("res://addons/dungeon_digger/plugin.cfg")
 
 [filesystem]
 

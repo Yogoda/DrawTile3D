@@ -1,0 +1,59 @@
+[gd_resource type="Resource" script_class="TileMapData" load_steps=19 format=3 uid="uid://svuymdir8bqx"]
+
+[ext_resource type="Script" path="res://addons/dungeon_digger/tile_map_data.gd" id="1_scl1p"]
+
+[sub_resource type="Resource" id="Resource_0gn81"]
+
+[sub_resource type="Resource" id="Resource_50ang"]
+
+[sub_resource type="Resource" id="Resource_teb03"]
+
+[sub_resource type="Resource" id="Resource_qtaqu"]
+
+[sub_resource type="Resource" id="Resource_hfd7c"]
+
+[sub_resource type="Resource" id="Resource_rl1bd"]
+
+[sub_resource type="Resource" id="Resource_50mxs"]
+
+[sub_resource type="Resource" id="Resource_64ykx"]
+
+[sub_resource type="Resource" id="Resource_osj2q"]
+
+[sub_resource type="Resource" id="Resource_sluwm"]
+
+[sub_resource type="Resource" id="Resource_r4krw"]
+
+[sub_resource type="Resource" id="Resource_85pxj"]
+
+[sub_resource type="Resource" id="Resource_7vawp"]
+
+[sub_resource type="Resource" id="Resource_k4ltb"]
+
+[sub_resource type="Resource" id="Resource_kxrkb"]
+
+[sub_resource type="Resource" id="Resource_lq0nu"]
+
+[sub_resource type="Resource" id="Resource_lgpgs"]
+
+[resource]
+script = ExtResource("1_scl1p")
+tile_map = {
+Vector3i(-2, 0, -1): SubResource("Resource_0gn81"),
+Vector3i(-2, 0, 0): SubResource("Resource_50ang"),
+Vector3i(-2, 0, 1): SubResource("Resource_teb03"),
+Vector3i(-2, 1, -1): SubResource("Resource_qtaqu"),
+Vector3i(-2, 1, 0): SubResource("Resource_hfd7c"),
+Vector3i(-2, 1, 1): SubResource("Resource_rl1bd"),
+Vector3i(-1, 0, -1): SubResource("Resource_50mxs"),
+Vector3i(-1, 0, 0): SubResource("Resource_64ykx"),
+Vector3i(-1, 0, 1): SubResource("Resource_osj2q"),
+Vector3i(-1, 1, -1): SubResource("Resource_sluwm"),
+Vector3i(-1, 1, 0): SubResource("Resource_r4krw"),
+Vector3i(-1, 1, 1): SubResource("Resource_85pxj"),
+Vector3i(0, 0, -1): SubResource("Resource_7vawp"),
+Vector3i(0, 0, 1): SubResource("Resource_k4ltb"),
+Vector3i(1, 0, -1): SubResource("Resource_kxrkb"),
+Vector3i(1, 0, 0): SubResource("Resource_lq0nu"),
+Vector3i(1, 0, 1): SubResource("Resource_lgpgs")
+}

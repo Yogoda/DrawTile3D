@@ -3,17 +3,17 @@ class_name Tile3D
 
 const TILE_2D_NOT_SET:int = -1
 
-var tile_shape:TileShape
+@export var tile_shape:TileShape
 
-var tile_2D:int = TILE_2D_NOT_SET
+@export var tile_2D:int = TILE_2D_NOT_SET
 
 #texture override
-var tile_2D_up:int = TILE_2D_NOT_SET
-var tile_2D_down:int = TILE_2D_NOT_SET
-var tile_2D_left:int = TILE_2D_NOT_SET
-var tile_2D_right:int = TILE_2D_NOT_SET
-var tile_2D_forward:int = TILE_2D_NOT_SET
-var tile_2D_back:int = TILE_2D_NOT_SET
+@export var tile_2D_up:int = TILE_2D_NOT_SET
+@export var tile_2D_down:int = TILE_2D_NOT_SET
+@export var tile_2D_left:int = TILE_2D_NOT_SET
+@export var tile_2D_right:int = TILE_2D_NOT_SET
+@export var tile_2D_forward:int = TILE_2D_NOT_SET
+@export var tile_2D_back:int = TILE_2D_NOT_SET
 
 func _init(p_shape:TileShape, p_tile_2D:int):
 	

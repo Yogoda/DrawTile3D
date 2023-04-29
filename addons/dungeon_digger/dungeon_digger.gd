@@ -3,9 +3,9 @@ extends EditorPlugin
 
 var dd_panel
 
-#func _enter_tree():
+func _enter_tree():
 
-#	_enable_plugin()
+	_enable_plugin()
 #
 #	dd_panel = preload("res://addons/dungeon_digger/dd_panel.tscn").instantiate()
 #	add_control_to_dock(DOCK_SLOT_RIGHT_UL, dd_panel)
@@ -128,6 +128,8 @@ func tilemap_action(cursor_info, remove_mode:bool, copy_mode:bool):
 					print("set tile 3D:", tile_pos)
 
 				tile_map.generate_mesh(true)
+				
+				tile_map.update_mesh()
 
 func _forward_3d_gui_input(camera, event):
 	

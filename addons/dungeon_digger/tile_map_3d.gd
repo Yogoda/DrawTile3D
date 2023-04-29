@@ -19,7 +19,10 @@ class_name TileMap3D
 @export var tile_size:Vector3 = Vector3(1.0, 1.0, 1.0)
 @export var tiles_xcount:=16
 
-@export var tile_map = {}
+var tile_map = {}
+#@export 
+@export var tile_map_data:TileMapData
+
 var tile_chunks = {}
 
 var tile_shape_cube:TileShape = preload("res://addons/dungeon_digger/tile_shapes/block/cube.tile_shape.tres")
@@ -34,6 +37,34 @@ func _ready():
 	
 	set_meta("_edit_lock_", true)
 	set_meta("_edit_group_", true)
+	
+func _enter_tree():
+	
+	if ResourceLoader.exists("save.tres"):
+		tile_map_data = load("save.tres")
+	else:
+		tile_map_data = TileMapData.new()
+	
+	tile_map.clear()
+	
+	for index in tile_map_data.indexes.size():
+		tile_map[index] = tile_map_data.tiles[index]
+#	
+#	tile_map_data.indexes = tile_map.keys()
+#	tile_map_data.tiles = tile_map.values()
+
+func save_tile_map():
+	
+	tile_map_data.indexes = tile_map.keys() as Array[Vector3i]
+	tile_map_data.tiles = tile_map.values()
+	
+	ResourceSaver.save(tile_map_data, "save.tres")
+	
+func _notification(what):
+	
+	if what == NOTIFICATION_EDITOR_POST_SAVE:
+		
+		save_tile_map()
 
 func get_selected_tile_2D():
 	
@@ -45,6 +76,7 @@ func get_selected_tile_2D():
 func create_test_tiles():
 	
 	tile_map.clear()
+#	tile_map_data.tile_map.clear()
 	
 #	var tile_2D:int
 	
@@ -92,6 +124,7 @@ func set_tile_3D(p_pos:Vector3i, p_tile:int):
 	var tile_3D = Tile3D.new(tile_shape_cube, p_tile)
 
 	tile_map[p_pos] = tile_3D
+#	tile_map_data.tile_map[p_pos] = tile_3D
 	
 func remove_tile_3D(p_pos:Vector3i):
 	
@@ -194,6 +227,44 @@ func get_tile_tex(p_tile:Tile3D, p_face:Vector3i) -> int:
 		return p_tile.tile_2D
 		
 	return tile_2D
+	
+func update_mesh():
+	
+	#source mesh
+	var mesh_data_tool:MeshDataTool = MeshDataTool.new()
+	mesh_data_tool.create_from_surface($Chunk.mesh, 0)
+	
+	#new mesh
+	var surface_tool:SurfaceTool = SurfaceTool.new()
+	surface_tool.begin(Mesh.PRIMITIVE_TRIANGLES)
+	
+	var vertex:Vector3
+	var normal:Vector3
+	var uv:Vector2
+	
+	for face_index in range(mesh_data_tool.get_face_count()):
+		
+		var face_normal = mesh_data_tool.get_face_normal(face_index)
+		
+		for vi in range(3):
+			
+			var vertile_2D = mesh_data_tool.get_face_vertex(face_index,vi)
+			
+			vertex = mesh_data_tool.get_vertex(vertile_2D)
+			normal = mesh_data_tool.get_vertex_normal(vertile_2D)
+			uv = mesh_data_tool.get_vertex_uv(vertile_2D)
+			
+			surface_tool.set_uv(uv)
+			surface_tool.set_normal(normal)
+			surface_tool.add_vertex(vertex)
+	
+	#set mesh
+	var mesh:Mesh = surface_tool.commit()
+	$Chunk.mesh = mesh
+	
+	#set collision
+	var faces:Array = mesh.surface_get_arrays(0)[0]
+	$CollisionShape3D.shape.set_faces(faces)
 
 @warning_ignore("unused_parameter")
 func generate_mesh(value):
@@ -204,7 +275,7 @@ func generate_mesh(value):
 	#tile positions
 	for tile_pos in tile_map.keys() as Array[Vector3i]:
 		
-		var tile:Tile3D = tile_map[tile_pos]
+		var tile:Tile3D = tile_map[tile_pos] as Tile3D
 
 		var tile_shape:TileShape = tile.tile_shape
 
