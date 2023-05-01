@@ -1,11 +1,11 @@
 [gd_resource type="Resource" script_class="TileShape" load_steps=8 format=3 uid="uid://fvhvv3ongalh"]
 
-[ext_resource type="ArrayMesh" uid="uid://cliqusrfgmb1d" path="res://addons/dungeon_digger/tile_shapes/block/block_back.res" id="1_dek1k"]
-[ext_resource type="ArrayMesh" uid="uid://3ub0gb22e8wf" path="res://addons/dungeon_digger/tile_shapes/block/block_bottom.res" id="2_as6yn"]
-[ext_resource type="ArrayMesh" uid="uid://bb4stvhvety5o" path="res://addons/dungeon_digger/tile_shapes/block/block_front.res" id="3_kqn40"]
-[ext_resource type="ArrayMesh" uid="uid://daa87yv5cw7r5" path="res://addons/dungeon_digger/tile_shapes/block/block_left.res" id="4_dsshq"]
-[ext_resource type="ArrayMesh" uid="uid://bbc7bahrb64p3" path="res://addons/dungeon_digger/tile_shapes/block/block_right.res" id="5_vt876"]
-[ext_resource type="ArrayMesh" uid="uid://eeh6pqlnt1l6" path="res://addons/dungeon_digger/tile_shapes/block/block_top.res" id="6_2c8di"]
+[ext_resource type="ArrayMesh" uid="uid://bhgpojwusjlr5" path="res://addons/dungeon_digger/tile_shapes/block/block_back.res" id="1_dek1k"]
+[ext_resource type="ArrayMesh" uid="uid://rxmbfsjsx01t" path="res://addons/dungeon_digger/tile_shapes/block/block_bottom.res" id="2_as6yn"]
+[ext_resource type="ArrayMesh" uid="uid://bfdvhqi3ryq00" path="res://addons/dungeon_digger/tile_shapes/block/block_front.res" id="3_kqn40"]
+[ext_resource type="ArrayMesh" uid="uid://b4ayfuwkioovc" path="res://addons/dungeon_digger/tile_shapes/block/block_left.res" id="4_dsshq"]
+[ext_resource type="ArrayMesh" uid="uid://c11c56alfe41r" path="res://addons/dungeon_digger/tile_shapes/block/block_right.res" id="5_vt876"]
+[ext_resource type="ArrayMesh" uid="uid://bl1olp5p7qo4u" path="res://addons/dungeon_digger/tile_shapes/block/block_top.res" id="6_2c8di"]
 [ext_resource type="Script" path="res://addons/dungeon_digger/tile_shape.gd" id="7_wt0l1"]
 
 [resource]

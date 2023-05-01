@@ -69,9 +69,7 @@ func get_cursor_info(mouse_pos, camera, depth=800):
 func tilemap_action(cursor_info, remove_mode:bool, copy_mode:bool):
 	
 	if cursor_info.position != null and cursor_info.normal != null:
-			
-#				var root = get_tree().get_edited_scene_root()
-		
+
 		if cursor_info.collider is TileMap3D:
 
 			var tile_map:TileMap3D = cursor_info.collider
@@ -110,7 +108,7 @@ func tilemap_action(cursor_info, remove_mode:bool, copy_mode:bool):
 				
 				tile_map.set_tile_2D(tile_pos, face)
 				
-				tile_map.generate_mesh(true)
+#				tile_map.generate_mesh(true)
 				
 			elif dd_panel.draw_mode == dd_panel.DRAW_MODE.TILE3D:
 			
@@ -122,19 +120,13 @@ func tilemap_action(cursor_info, remove_mode:bool, copy_mode:bool):
 				var tile_pos = tile_map.coord_to_tile_pos(cursor_info.position + direction * cursor_info.normal * tile_map.tile_size / 2.0)
 				
 				if remove_mode:
-					tile_map.remove_block(tile_pos, dd_panel.selected_tile_2D)
+					tile_map.place_block(tile_pos, dd_panel.selected_tile_2D)
 					print("remove block:", tile_pos)
 				else:
-					tile_map.set_block(tile_pos, dd_panel.selected_tile_2D)
+					tile_map.dig_block(tile_pos, dd_panel.selected_tile_2D)
 					print("set block:", tile_pos)
 
-#				tile_map.generate_mesh(true)
-				
-#				tile_map.update_mesh(tile_pos, dd_panel.selected_tile_2D)
-
 func _forward_3d_gui_input(camera, event):
-	
-#	print(event)
 	
 	if event is InputEventMouseMotion and dd_panel.draw_mode != dd_panel.DRAW_MODE.TILE3D:
 		

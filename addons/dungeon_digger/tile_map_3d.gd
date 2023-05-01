@@ -25,8 +25,6 @@ class Bounds:
 		
 		if reset:
 			create_test_tiles()
-			
-#		generate_mesh(value)
 
 @export var reset:bool = false
 
@@ -69,41 +67,6 @@ func create_test_tiles():
 	#set collision
 	var faces:Array = mesh.surface_get_arrays(0)[0]
 	$CollisionShape3D.shape.set_faces(faces)
-	
-#	tile_map.clear()
-#	tile_map_data.tile_map.clear()
-	
-#	var tile_2D:int
-	
-#	print("selected tile:", dd_panel.selected_tile_2D)
-	
-#	selected_tile_3D = Tile3D.new(tile_shape_cube, dd_panel.selected_tile_2D)
-	
-#	var tile = get_selected_tile_2D()
-#
-#	set_tile_3D(Vector3i(-1, 0, -1), tile)
-#	set_tile_3D(Vector3i(-1, 0, 0), tile)
-#	set_tile_3D(Vector3i(-1, 0, 1), tile)
-#
-#	set_tile_3D(Vector3i(-2, 0, -1), tile)
-#	set_tile_3D(Vector3i(-2, 0, 0), tile)
-#	set_tile_3D(Vector3i(-2, 0, 1), tile)
-#
-#	set_tile_3D(Vector3i(-1, 1, -1), tile)
-#	set_tile_3D(Vector3i(-1, 1, 0), tile)
-#	set_tile_3D(Vector3i(-1, 1, 1), tile)
-#
-#	set_tile_3D(Vector3i(-2, 1, -1), tile)
-#	set_tile_3D(Vector3i(-2, 1, 0), tile)
-#	set_tile_3D(Vector3i(-2, 1, 1), tile)
-#
-#	set_tile_3D(Vector3i(1, 0, -1), tile)
-#	set_tile_3D(Vector3i(1, 0, 0), tile)
-#	set_tile_3D(Vector3i(1, 0, 1), tile)
-#
-#	set_tile_3D(Vector3i(0, 0, -1), tile)
-#	set_tile_3D(Vector3i(0, 0, 1), tile)
-
 
 
 func coord_to_tile_pos(p_coord:Vector3) -> Vector3i:
@@ -111,23 +74,16 @@ func coord_to_tile_pos(p_coord:Vector3) -> Vector3i:
 	var tile_pos = p_coord
 	
 	tile_pos = (tile_pos + tile_size / 2.0) / tile_size
-#						print("selected tile:", selected_tile)
 	tile_pos = tile_pos.floor()
-#							print("selected tile:", selected_tile)
+
 	return tile_pos as Vector3i
 
-func set_block(p_pos:Vector3i, p_tile:int):
+func dig_block(p_pos:Vector3i, p_tile:int):
 	
 	update_mesh(p_pos, p_tile, true)
 	
-#	var tile_3D = Tile3D.new(tile_shape_cube, p_tile)
-
-#	tile_map[p_pos] = tile_3D
-#	tile_map_data.tile_map[p_pos] = tile_3D
+func place_block(p_pos:Vector3i, p_tile:int):
 	
-func remove_block(p_pos:Vector3i, p_tile:int):
-	
-#	tile_map.erase(p_pos)
 	update_mesh(p_pos, p_tile, false)
 
 func set_tile_2D(p_tile_pos:Vector3i, p_face:Vector3i):
@@ -176,17 +132,17 @@ func copy_mesh(p_mesh_to_copy:Mesh,
 			
 			#set uv according to triangle direction
 			if face_normal.dot(Vector3.FORWARD) > 0.5:
-				uv.x = vertex.y
-				uv.y = vertex.x
+				uv.x = vertex.x
+				uv.y = -vertex.y
 			elif face_normal.dot(Vector3.BACK) > 0.5:
-				uv.x = vertex.y
-				uv.y = -vertex.x
+				uv.x = -vertex.x
+				uv.y = -vertex.y
 			elif face_normal.dot(Vector3.LEFT) > 0.5:
-				uv.x = vertex.y
-				uv.y = -vertex.z
+				uv.x = -vertex.z
+				uv.y = -vertex.y
 			elif face_normal.dot(Vector3.RIGHT) > 0.5:
-				uv.x = vertex.y
-				uv.y = vertex.z
+				uv.x = vertex.z
+				uv.y = -vertex.y
 			else:
 				uv.x = vertex.x
 				uv.y = vertex.z
@@ -333,8 +289,6 @@ func update_mesh(p_block_pos:Vector3i, p_tile_2D:int, p_dig = true):
 			
 			const normal_dir_match:= 0.5
 			
-#			print("face normal:", face_normal)
-			
 			if face_normal.dot(Vector3.LEFT) > normal_dir_match:
 				block_faces.erase(Vector3i.LEFT)
 			elif face_normal.dot(Vector3.RIGHT) > normal_dir_match:
@@ -347,20 +301,6 @@ func update_mesh(p_block_pos:Vector3i, p_tile_2D:int, p_dig = true):
 				block_faces.erase(Vector3i.FORWARD)
 			elif face_normal.dot(Vector3.BACK) > normal_dir_match:
 				block_faces.erase(Vector3i.BACK)
-			
-#			for vi in range(3):
-#
-#				var vertex_index = mesh_data_tool.get_face_vertex(face_index,vi)
-#
-#				vertex = mesh_data_tool.get_vertex(vertex_index)
-#				normal = mesh_data_tool.get_vertex_normal(vertex_index)
-#				uv = mesh_data_tool.get_vertex_uv(vertex_index)
-#
-#				uv.x = 0.0
-#				uv.y = 0.0
-#				surface_tool.set_uv(uv)
-#				surface_tool.set_normal(normal)
-#				surface_tool.add_vertex(vertex)
 			
 		#face not in modification bounds, copy
 		else:
@@ -378,14 +318,11 @@ func update_mesh(p_block_pos:Vector3i, p_tile_2D:int, p_dig = true):
 				surface_tool.set_normal(normal)
 				surface_tool.add_vertex(vertex)
 	
-	#faces to create
+	#create missing faces
 	for face in block_faces:
 #		print("face to create:", face)
 		create_block_face(surface_tool, p_block_pos, face, p_tile_2D, p_dig)
-		
-	#create missing faces
-#	create_faces(p_block_pos, p_face:Vector3i, p_tile_2D)
-	
+
 	#set mesh
 	var mesh:Mesh = surface_tool.commit()
 	$Chunk.mesh = mesh
@@ -394,46 +331,6 @@ func update_mesh(p_block_pos:Vector3i, p_tile_2D:int, p_dig = true):
 	var faces:Array = mesh.surface_get_arrays(0)[0]
 	$CollisionShape3D.shape.set_faces(faces)
 
-@warning_ignore("unused_parameter")
-func generate_mesh(value):
-	
-	var surface_tool:SurfaceTool = SurfaceTool.new()
-	surface_tool.begin(Mesh.PRIMITIVE_TRIANGLES)
-
-	#tile positions
-	for tile_pos in tile_map.keys() as Array[Vector3i]:
-		
-		var tile:Tile3D = tile_map[tile_pos] as Tile3D
-
-		var tile_shape:TileShape = tile.tile_shape
-
-		if not tile_map.has(tile_pos + Vector3i.LEFT):
-			copy_mesh(tile_shape.mesh_right, surface_tool, tile_pos, get_tile_tex(tile, Vector3i.LEFT))
-	
-		if not tile_map.has(tile_pos + Vector3i.RIGHT):
-			copy_mesh(tile_shape.mesh_left, surface_tool, tile_pos, get_tile_tex(tile, Vector3i.RIGHT))
-			
-		if not tile_map.has(tile_pos + Vector3i.UP):
-			copy_mesh(tile_shape.mesh_up, surface_tool, tile_pos, get_tile_tex(tile, Vector3i.UP))
-			
-		if not tile_map.has(tile_pos + Vector3i.DOWN):
-			copy_mesh(tile_shape.mesh_down, surface_tool, tile_pos, get_tile_tex(tile, Vector3i.DOWN))
-			
-		if not tile_map.has(tile_pos + Vector3i.BACK):
-			copy_mesh(tile_shape.mesh_forward, surface_tool, tile_pos, get_tile_tex(tile, Vector3i.BACK))
-			
-		if not tile_map.has(tile_pos + Vector3i.FORWARD):
-			copy_mesh(tile_shape.mesh_back, surface_tool, tile_pos, get_tile_tex(tile, Vector3i.FORWARD))
-	
-	#set mesh
-	var mesh:Mesh = surface_tool.commit()
-	$Chunk.mesh = mesh
-		
-	#set collision
-	var faces:Array = mesh.surface_get_arrays(0)[0]
-	$CollisionShape3D.shape.set_faces(faces)
-	
-#	print("geometry generated")
 
 func set_pixel(p_pos:Vector2i, color:Color):
 	
