@@ -26,7 +26,7 @@ class Bounds:
 		if reset:
 			create_test_tiles()
 			
-		generate_mesh(value)
+#		generate_mesh(value)
 
 @export var reset:bool = false
 
@@ -36,8 +36,6 @@ class Bounds:
 @export var tiles_xcount:=16
 
 var tile_map = {}
-#@export 
-@export var tile_map_data:TileMapData
 
 var tile_chunks = {}
 
@@ -54,33 +52,6 @@ func _ready():
 	set_meta("_edit_lock_", true)
 	set_meta("_edit_group_", true)
 	
-func _enter_tree():
-	
-	if ResourceLoader.exists("save.tres"):
-		tile_map_data = load("save.tres")
-	else:
-		tile_map_data = TileMapData.new()
-	
-	tile_map.clear()
-	
-	for index in tile_map_data.indexes.size():
-		tile_map[index] = tile_map_data.tiles[index]
-#	
-#	tile_map_data.indexes = tile_map.keys()
-#	tile_map_data.tiles = tile_map.values()
-
-func save_tile_map():
-	
-	tile_map_data.indexes = tile_map.keys() as Array[Vector3i]
-	tile_map_data.tiles = tile_map.values()
-	
-	ResourceSaver.save(tile_map_data, "save.tres")
-	
-func _notification(what):
-	
-	if what == NOTIFICATION_EDITOR_POST_SAVE:
-		
-		save_tile_map()
 
 func get_selected_tile_2D():
 	
@@ -91,7 +62,14 @@ func get_selected_tile_2D():
 
 func create_test_tiles():
 	
-	tile_map.clear()
+	var mesh:Mesh = load("res://starting_mesh.mesh.res")
+	$Chunk.mesh = mesh.duplicate()
+	
+	#set collision
+	var faces:Array = mesh.surface_get_arrays(0)[0]
+	$CollisionShape3D.shape.set_faces(faces)
+	
+#	tile_map.clear()
 #	tile_map_data.tile_map.clear()
 	
 #	var tile_2D:int
@@ -100,30 +78,32 @@ func create_test_tiles():
 	
 #	selected_tile_3D = Tile3D.new(tile_shape_cube, dd_panel.selected_tile_2D)
 	
-	var tile = get_selected_tile_2D()
-	
-	set_tile_3D(Vector3i(-1, 0, -1), tile)
-	set_tile_3D(Vector3i(-1, 0, 0), tile)
-	set_tile_3D(Vector3i(-1, 0, 1), tile)
-	
-	set_tile_3D(Vector3i(-2, 0, -1), tile)
-	set_tile_3D(Vector3i(-2, 0, 0), tile)
-	set_tile_3D(Vector3i(-2, 0, 1), tile)
-	
-	set_tile_3D(Vector3i(-1, 1, -1), tile)
-	set_tile_3D(Vector3i(-1, 1, 0), tile)
-	set_tile_3D(Vector3i(-1, 1, 1), tile)
-	
-	set_tile_3D(Vector3i(-2, 1, -1), tile)
-	set_tile_3D(Vector3i(-2, 1, 0), tile)
-	set_tile_3D(Vector3i(-2, 1, 1), tile)
-	
-	set_tile_3D(Vector3i(1, 0, -1), tile)
-	set_tile_3D(Vector3i(1, 0, 0), tile)
-	set_tile_3D(Vector3i(1, 0, 1), tile)
-	
-	set_tile_3D(Vector3i(0, 0, -1), tile)
-	set_tile_3D(Vector3i(0, 0, 1), tile)
+#	var tile = get_selected_tile_2D()
+#
+#	set_tile_3D(Vector3i(-1, 0, -1), tile)
+#	set_tile_3D(Vector3i(-1, 0, 0), tile)
+#	set_tile_3D(Vector3i(-1, 0, 1), tile)
+#
+#	set_tile_3D(Vector3i(-2, 0, -1), tile)
+#	set_tile_3D(Vector3i(-2, 0, 0), tile)
+#	set_tile_3D(Vector3i(-2, 0, 1), tile)
+#
+#	set_tile_3D(Vector3i(-1, 1, -1), tile)
+#	set_tile_3D(Vector3i(-1, 1, 0), tile)
+#	set_tile_3D(Vector3i(-1, 1, 1), tile)
+#
+#	set_tile_3D(Vector3i(-2, 1, -1), tile)
+#	set_tile_3D(Vector3i(-2, 1, 0), tile)
+#	set_tile_3D(Vector3i(-2, 1, 1), tile)
+#
+#	set_tile_3D(Vector3i(1, 0, -1), tile)
+#	set_tile_3D(Vector3i(1, 0, 0), tile)
+#	set_tile_3D(Vector3i(1, 0, 1), tile)
+#
+#	set_tile_3D(Vector3i(0, 0, -1), tile)
+#	set_tile_3D(Vector3i(0, 0, 1), tile)
+
+
 
 func coord_to_tile_pos(p_coord:Vector3) -> Vector3i:
 	
@@ -135,16 +115,19 @@ func coord_to_tile_pos(p_coord:Vector3) -> Vector3i:
 #							print("selected tile:", selected_tile)
 	return tile_pos as Vector3i
 
-func set_tile_3D(p_pos:Vector3i, p_tile:int):
+func set_block(p_pos:Vector3i, p_tile:int):
 	
-	var tile_3D = Tile3D.new(tile_shape_cube, p_tile)
+	update_mesh(p_pos, p_tile)
+	
+#	var tile_3D = Tile3D.new(tile_shape_cube, p_tile)
 
-	tile_map[p_pos] = tile_3D
+#	tile_map[p_pos] = tile_3D
 #	tile_map_data.tile_map[p_pos] = tile_3D
 	
-func remove_tile_3D(p_pos:Vector3i):
+func remove_block(p_pos:Vector3i, p_tile:int):
 	
-	tile_map.erase(p_pos)
+#	tile_map.erase(p_pos)
+	update_mesh(p_pos, p_tile)
 
 func set_tile_2D(p_tile_pos:Vector3i, p_face:Vector3i):
 	
@@ -191,14 +174,20 @@ func copy_mesh(p_mesh_to_copy:Mesh,
 			uv = mesh_data_tool.get_vertex_uv(vertex_index)
 			
 			#set uv according to triangle direction
-			if abs(face_normal.dot(Vector3.FORWARD)) > 0.5:
-				uv.x = vertex.x
-				uv.y = vertex.y
-			elif abs(face_normal.dot(Vector3.UP)) > 0.5:
-				uv.x = vertex.x
+			if face_normal.dot(Vector3.FORWARD) > 0.5:
+				uv.x = vertex.y
+				uv.y = vertex.x
+			elif face_normal.dot(Vector3.BACK) > 0.5:
+				uv.x = vertex.y
+				uv.y = -vertex.x
+			elif face_normal.dot(Vector3.LEFT) > 0.5:
+				uv.x = vertex.y
+				uv.y = -vertex.z
+			elif face_normal.dot(Vector3.RIGHT) > 0.5:
+				uv.x = vertex.y
 				uv.y = vertex.z
 			else:
-				uv.x = vertex.y
+				uv.x = vertex.x
 				uv.y = vertex.z
 				
 			var tile_size_ = 2.0

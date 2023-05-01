@@ -122,15 +122,15 @@ func tilemap_action(cursor_info, remove_mode:bool, copy_mode:bool):
 				var tile_pos = tile_map.coord_to_tile_pos(cursor_info.position + direction * cursor_info.normal * tile_map.tile_size / 2.0)
 				
 				if remove_mode:
-					tile_map.remove_tile_3D(tile_pos)
-					print("remove tile 3D:", tile_pos)
+					tile_map.remove_block(tile_pos, dd_panel.selected_tile_2D)
+					print("remove block:", tile_pos)
 				else:
-					tile_map.set_tile_3D(tile_pos, dd_panel.selected_tile_2D)
-					print("set tile 3D:", tile_pos)
+					tile_map.set_block(tile_pos, dd_panel.selected_tile_2D)
+					print("set block:", tile_pos)
 
 #				tile_map.generate_mesh(true)
 				
-				tile_map.update_mesh(tile_pos, dd_panel.selected_tile_2D)
+#				tile_map.update_mesh(tile_pos, dd_panel.selected_tile_2D)
 
 func _forward_3d_gui_input(camera, event):
 	
