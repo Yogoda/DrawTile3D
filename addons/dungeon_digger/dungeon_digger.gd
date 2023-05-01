@@ -93,18 +93,19 @@ func tilemap_action(cursor_info, remove_mode:bool, copy_mode:bool):
 				var tile_pos = tile_map.coord_to_tile_pos(cursor_info.position + cursor_info.normal * tile_map.tile_size / 2.0)
 				
 				var face:Vector3i = Vector3i.ZERO
+				const normal_dir_match:= 0.5
 				
-				if cursor_info.normal.dot(Vector3.LEFT) > 0.5:
+				if cursor_info.normal.dot(Vector3.LEFT) > normal_dir_match:
 					face = Vector3i.RIGHT
-				elif cursor_info.normal.dot(Vector3.RIGHT) > 0.5:
+				elif cursor_info.normal.dot(Vector3.RIGHT) > normal_dir_match:
 					face = Vector3i.LEFT
-				elif cursor_info.normal.dot(Vector3.DOWN) > 0.5:
+				elif cursor_info.normal.dot(Vector3.DOWN) > normal_dir_match:
 					face = Vector3i.UP
-				elif cursor_info.normal.dot(Vector3.UP) > 0.5:
+				elif cursor_info.normal.dot(Vector3.UP) > normal_dir_match:
 					face = Vector3i.DOWN
-				elif cursor_info.normal.dot(Vector3.FORWARD) > 0.5:
+				elif cursor_info.normal.dot(Vector3.FORWARD) > normal_dir_match:
 					face = Vector3i.BACK
-				elif cursor_info.normal.dot(Vector3.BACK) > 0.5:
+				elif cursor_info.normal.dot(Vector3.BACK) > normal_dir_match:
 					face = Vector3i.FORWARD
 				
 				tile_map.set_tile_2D(tile_pos, face)
@@ -127,9 +128,9 @@ func tilemap_action(cursor_info, remove_mode:bool, copy_mode:bool):
 					tile_map.set_tile_3D(tile_pos, dd_panel.selected_tile_2D)
 					print("set tile 3D:", tile_pos)
 
-				tile_map.generate_mesh(true)
+#				tile_map.generate_mesh(true)
 				
-				tile_map.update_mesh()
+				tile_map.update_mesh(tile_pos, dd_panel.selected_tile_2D)
 
 func _forward_3d_gui_input(camera, event):
 	

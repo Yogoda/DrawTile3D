@@ -2,6 +2,22 @@
 extends Node3D
 class_name TileMap3D
 
+class Bounds:
+	extends RefCounted
+	
+	var min:Vector3
+	var max:Vector3
+	
+	func _init(p_min:Vector3, p_max:Vector3):
+		min = p_min
+		max = p_max
+		
+	func is_in_bounds(p:Vector3):
+		
+		return  p.x >= min.x and p.x <= max.x and \
+				p.y >= min.y and p.y <= max.y and \
+				p.z >= min.z and p.z <= max.z
+
 @export_category("Action")
 
 @export var generate:bool :
@@ -168,11 +184,11 @@ func copy_mesh(p_mesh_to_copy:Mesh,
 		
 		for vi in range(3):
 			
-			var vertile_2D = mesh_data_tool.get_face_vertex(face_index,vi)
+			var vertex_index = mesh_data_tool.get_face_vertex(face_index,vi)
 			
-			vertex = mesh_data_tool.get_vertex(vertile_2D)
-			normal = mesh_data_tool.get_vertex_normal(vertile_2D)
-			uv = mesh_data_tool.get_vertex_uv(vertile_2D)
+			vertex = mesh_data_tool.get_vertex(vertex_index)
+			normal = mesh_data_tool.get_vertex_normal(vertex_index)
+			uv = mesh_data_tool.get_vertex_uv(vertex_index)
 			
 			#set uv according to triangle direction
 			if abs(face_normal.dot(Vector3.FORWARD)) > 0.5:
@@ -228,7 +244,41 @@ func get_tile_tex(p_tile:Tile3D, p_face:Vector3i) -> int:
 		
 	return tile_2D
 	
-func update_mesh():
+	
+func get_block_bounds(p_pos:Vector3i) -> Bounds:
+	
+	var margin = 0.01
+	
+	var min:Vector3 = Vector3.ZERO - tile_size / 2.0
+	var max:Vector3 = Vector3.ZERO + tile_size / 2.0
+	
+	min -= tile_size * margin
+	max += tile_size * margin
+	
+	min += tile_size * (p_pos as Vector3)
+	max += tile_size * (p_pos as Vector3)
+	
+	return Bounds.new(min, max)
+	
+func create_block_face(p_surface_tool:SurfaceTool, p_block_pos:Vector3i, p_face:Vector3i, p_tile_2D:int):
+	
+	var tile_shape:TileShape = tile_shape_cube
+
+	if p_face == Vector3i.LEFT:
+		copy_mesh(tile_shape.mesh_right, p_surface_tool, p_block_pos, p_tile_2D)
+	if p_face == Vector3i.RIGHT:
+		copy_mesh(tile_shape.mesh_left, p_surface_tool, p_block_pos, p_tile_2D)
+	if p_face == Vector3i.UP:
+		copy_mesh(tile_shape.mesh_up, p_surface_tool, p_block_pos, p_tile_2D)
+	if p_face == Vector3i.DOWN:
+		copy_mesh(tile_shape.mesh_down, p_surface_tool, p_block_pos, p_tile_2D)
+	if p_face == Vector3i.BACK:
+		copy_mesh(tile_shape.mesh_forward, p_surface_tool, p_block_pos, p_tile_2D)
+	if p_face == Vector3i.FORWARD:
+		copy_mesh(tile_shape.mesh_back, p_surface_tool, p_block_pos, p_tile_2D)
+
+	
+func update_mesh(p_block_pos:Vector3i, p_tile_2D:int):
 	
 	#source mesh
 	var mesh_data_tool:MeshDataTool = MeshDataTool.new()
@@ -242,21 +292,86 @@ func update_mesh():
 	var normal:Vector3
 	var uv:Vector2
 	
+	#the bounds of the updated block to search faces
+	var block_bounds = get_block_bounds(p_block_pos)
+	#remember found block directions
+	var block_faces:Array = [Vector3i.LEFT, Vector3i.RIGHT, Vector3i.UP, Vector3i.DOWN, Vector3i.BACK, Vector3i.FORWARD]
+	
+	#TRIANGLES
 	for face_index in range(mesh_data_tool.get_face_count()):
 		
 		var face_normal = mesh_data_tool.get_face_normal(face_index)
 		
+		var face_in_bounds:bool = true
+		
+		#is the face in update bounds ? (do not copy)
 		for vi in range(3):
 			
-			var vertile_2D = mesh_data_tool.get_face_vertex(face_index,vi)
+			var vertex_index = mesh_data_tool.get_face_vertex(face_index,vi)
 			
-			vertex = mesh_data_tool.get_vertex(vertile_2D)
-			normal = mesh_data_tool.get_vertex_normal(vertile_2D)
-			uv = mesh_data_tool.get_vertex_uv(vertile_2D)
+			vertex = mesh_data_tool.get_vertex(vertex_index)
 			
-			surface_tool.set_uv(uv)
-			surface_tool.set_normal(normal)
-			surface_tool.add_vertex(vertex)
+			if not block_bounds.is_in_bounds(vertex):
+				face_in_bounds = false
+				break
+		
+		#face in modification bounds, do not copy, remember direction
+		if face_in_bounds:
+			
+			const normal_dir_match:= 0.5
+			
+#			print("face normal:", face_normal)
+			
+			if face_normal.dot(Vector3.LEFT) > normal_dir_match:
+				block_faces.erase(Vector3i.LEFT)
+			elif face_normal.dot(Vector3.RIGHT) > normal_dir_match:
+				block_faces.erase(Vector3i.RIGHT)
+			elif face_normal.dot(Vector3.DOWN) > normal_dir_match:
+				block_faces.erase(Vector3i.DOWN)
+			elif face_normal.dot(Vector3.UP) > normal_dir_match:
+				block_faces.erase(Vector3i.UP)
+			elif face_normal.dot(Vector3.FORWARD) > normal_dir_match:
+				block_faces.erase(Vector3i.FORWARD)
+			elif face_normal.dot(Vector3.BACK) > normal_dir_match:
+				block_faces.erase(Vector3i.BACK)
+			
+#			for vi in range(3):
+#
+#				var vertex_index = mesh_data_tool.get_face_vertex(face_index,vi)
+#
+#				vertex = mesh_data_tool.get_vertex(vertex_index)
+#				normal = mesh_data_tool.get_vertex_normal(vertex_index)
+#				uv = mesh_data_tool.get_vertex_uv(vertex_index)
+#
+#				uv.x = 0.0
+#				uv.y = 0.0
+#				surface_tool.set_uv(uv)
+#				surface_tool.set_normal(normal)
+#				surface_tool.add_vertex(vertex)
+			
+		#face not in modification bounds, copy
+		else:
+
+			#TRIANGLE VERICES
+			for vi in range(3):
+				
+				var vertex_index = mesh_data_tool.get_face_vertex(face_index,vi)
+				
+				vertex = mesh_data_tool.get_vertex(vertex_index)
+				normal = mesh_data_tool.get_vertex_normal(vertex_index)
+				uv = mesh_data_tool.get_vertex_uv(vertex_index)
+				
+				surface_tool.set_uv(uv)
+				surface_tool.set_normal(normal)
+				surface_tool.add_vertex(vertex)
+	
+	#faces to create
+	for face in block_faces:
+#		print("face to create:", face)
+		create_block_face(surface_tool, p_block_pos, face, p_tile_2D)
+		
+	#create missing faces
+#	create_faces(p_block_pos, p_face:Vector3i, p_tile_2D)
 	
 	#set mesh
 	var mesh:Mesh = surface_tool.commit()
