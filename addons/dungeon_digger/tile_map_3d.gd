@@ -40,6 +40,7 @@ var tile_map = {}
 var tile_chunks = {}
 
 var tile_shape_cube:TileShape = preload("res://addons/dungeon_digger/tile_shapes/block/cube.tile_shape.tres")
+var tile_shape_cube_flipped:TileShape = preload("res://addons/dungeon_digger/tile_shapes/block/cube_flipped.tile_shape.tres")
 
 var dd_panel:DungeonDiggerPanel
 
@@ -117,7 +118,7 @@ func coord_to_tile_pos(p_coord:Vector3) -> Vector3i:
 
 func set_block(p_pos:Vector3i, p_tile:int):
 	
-	update_mesh(p_pos, p_tile)
+	update_mesh(p_pos, p_tile, true)
 	
 #	var tile_3D = Tile3D.new(tile_shape_cube, p_tile)
 
@@ -127,7 +128,7 @@ func set_block(p_pos:Vector3i, p_tile:int):
 func remove_block(p_pos:Vector3i, p_tile:int):
 	
 #	tile_map.erase(p_pos)
-	update_mesh(p_pos, p_tile)
+	update_mesh(p_pos, p_tile, false)
 
 func set_tile_2D(p_tile_pos:Vector3i, p_face:Vector3i):
 	
@@ -249,25 +250,48 @@ func get_block_bounds(p_pos:Vector3i) -> Bounds:
 	
 	return Bounds.new(min, max)
 	
-func create_block_face(p_surface_tool:SurfaceTool, p_block_pos:Vector3i, p_face:Vector3i, p_tile_2D:int):
 	
-	var tile_shape:TileShape = tile_shape_cube
-
-	if p_face == Vector3i.LEFT:
-		copy_mesh(tile_shape.mesh_right, p_surface_tool, p_block_pos, p_tile_2D)
-	if p_face == Vector3i.RIGHT:
-		copy_mesh(tile_shape.mesh_left, p_surface_tool, p_block_pos, p_tile_2D)
-	if p_face == Vector3i.UP:
-		copy_mesh(tile_shape.mesh_up, p_surface_tool, p_block_pos, p_tile_2D)
-	if p_face == Vector3i.DOWN:
-		copy_mesh(tile_shape.mesh_down, p_surface_tool, p_block_pos, p_tile_2D)
-	if p_face == Vector3i.BACK:
-		copy_mesh(tile_shape.mesh_forward, p_surface_tool, p_block_pos, p_tile_2D)
-	if p_face == Vector3i.FORWARD:
-		copy_mesh(tile_shape.mesh_back, p_surface_tool, p_block_pos, p_tile_2D)
-
+func create_block_face(p_surface_tool:SurfaceTool, p_block_pos:Vector3i, p_face:Vector3i, p_tile_2D:int, p_dig:bool):
 	
-func update_mesh(p_block_pos:Vector3i, p_tile_2D:int):
+	var tile_shape:TileShape
+	
+	if p_dig:
+		tile_shape = tile_shape_cube_flipped
+	else:
+		tile_shape = tile_shape_cube
+
+	if p_dig:
+		
+		if p_face == Vector3i.LEFT:
+			copy_mesh(tile_shape.mesh_right, p_surface_tool, p_block_pos, p_tile_2D)
+		if p_face == Vector3i.RIGHT:
+			copy_mesh(tile_shape.mesh_left, p_surface_tool, p_block_pos, p_tile_2D)
+		if p_face == Vector3i.UP:
+			copy_mesh(tile_shape.mesh_up, p_surface_tool, p_block_pos, p_tile_2D)
+		if p_face == Vector3i.DOWN:
+			copy_mesh(tile_shape.mesh_down, p_surface_tool, p_block_pos, p_tile_2D)
+		if p_face == Vector3i.BACK:
+			copy_mesh(tile_shape.mesh_forward, p_surface_tool, p_block_pos, p_tile_2D)
+		if p_face == Vector3i.FORWARD:
+			copy_mesh(tile_shape.mesh_back, p_surface_tool, p_block_pos, p_tile_2D)
+			
+	else:
+		
+		if p_face == Vector3i.LEFT:
+			copy_mesh(tile_shape.mesh_left, p_surface_tool, p_block_pos, p_tile_2D)
+		if p_face == Vector3i.RIGHT:
+			copy_mesh(tile_shape.mesh_right, p_surface_tool, p_block_pos, p_tile_2D)
+		if p_face == Vector3i.UP:
+			copy_mesh(tile_shape.mesh_down, p_surface_tool, p_block_pos, p_tile_2D)
+		if p_face == Vector3i.DOWN:
+			copy_mesh(tile_shape.mesh_up, p_surface_tool, p_block_pos, p_tile_2D)
+		if p_face == Vector3i.BACK:
+			copy_mesh(tile_shape.mesh_back, p_surface_tool, p_block_pos, p_tile_2D)
+		if p_face == Vector3i.FORWARD:
+			copy_mesh(tile_shape.mesh_forward, p_surface_tool, p_block_pos, p_tile_2D)
+
+
+func update_mesh(p_block_pos:Vector3i, p_tile_2D:int, p_dig = true):
 	
 	#source mesh
 	var mesh_data_tool:MeshDataTool = MeshDataTool.new()
@@ -357,7 +381,7 @@ func update_mesh(p_block_pos:Vector3i, p_tile_2D:int):
 	#faces to create
 	for face in block_faces:
 #		print("face to create:", face)
-		create_block_face(surface_tool, p_block_pos, face, p_tile_2D)
+		create_block_face(surface_tool, p_block_pos, face, p_tile_2D, p_dig)
 		
 	#create missing faces
 #	create_faces(p_block_pos, p_face:Vector3i, p_tile_2D)

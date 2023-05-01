@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="TileShape" load_steps=8 format=3 uid="uid://ckdyoxftvyrw5"]
+
+[ext_resource type="ArrayMesh" uid="uid://dxso1njhpehlt" path="res://addons/dungeon_digger/tile_shapes/block/block_back_flipped.res" id="1_mjqhv"]
+[ext_resource type="ArrayMesh" uid="uid://c0yh6g7gkxhmf" path="res://addons/dungeon_digger/tile_shapes/block/block_bottom_flipped.res" id="2_xqneg"]
+[ext_resource type="ArrayMesh" uid="uid://chypdtium27ik" path="res://addons/dungeon_digger/tile_shapes/block/block_front_flipped.res" id="3_dklw7"]
+[ext_resource type="ArrayMesh" uid="uid://buntyh8rskwkq" path="res://addons/dungeon_digger/tile_shapes/block/block_left_flipped.res" id="4_53p0r"]
+[ext_resource type="ArrayMesh" uid="uid://cngiclcnbfxkq" path="res://addons/dungeon_digger/tile_shapes/block/block_right_flipped.res" id="5_g3222"]
+[ext_resource type="ArrayMesh" uid="uid://dbeevrohlffd7" path="res://addons/dungeon_digger/tile_shapes/block/block_top_flipped.res" id="6_o631u"]
+[ext_resource type="Script" path="res://addons/dungeon_digger/tile_shape.gd" id="7_muqom"]
+
+[resource]
+script = ExtResource("7_muqom")
+mesh_left = ExtResource("4_53p0r")
+mesh_right = ExtResource("5_g3222")
+mesh_up = ExtResource("6_o631u")
+mesh_down = ExtResource("2_xqneg")
+mesh_back = ExtResource("1_mjqhv")
+mesh_forward = ExtResource("3_dklw7")

@@ -18,12 +18,12 @@ nodes/root_name="Scene Root"
 nodes/apply_root_scale=true
 nodes/root_scale=1.0
 meshes/ensure_tangents=true
-meshes/generate_lods=true
-meshes/create_shadow_meshes=true
+meshes/generate_lods=false
+meshes/create_shadow_meshes=false
 meshes/light_baking=1
 meshes/lightmap_texel_size=0.2
-skins/use_named_skins=true
-animation/import=true
+skins/use_named_skins=false
+animation/import=false
 animation/fps=30
 animation/trimming=false
 animation/remove_immutable_tracks=true
@@ -40,6 +40,16 @@ _subresources={
 "save_to_file/make_streamable": "",
 "save_to_file/path": "res://tile_shapes/block/block_back.res"
 },
+"block_back_flipped": {
+"generate/lightmap_uv": 0,
+"generate/lods": 0,
+"generate/shadow_meshes": 0,
+"lods/normal_merge_angle": 60.0,
+"lods/normal_split_angle": 25.0,
+"save_to_file/enabled": true,
+"save_to_file/make_streamable": "",
+"save_to_file/path": "res://addons/dungeon_digger/tile_shapes/block/block_back_flipped.res"
+},
 "block_bottom": {
 "generate/lightmap_uv": 0,
 "generate/lods": 0,
@@ -49,6 +59,16 @@ _subresources={
 "save_to_file/enabled": true,
 "save_to_file/make_streamable": "",
 "save_to_file/path": "res://tile_shapes/block/block_bottom.res"
+},
+"block_bottom_flipped": {
+"generate/lightmap_uv": 0,
+"generate/lods": 0,
+"generate/shadow_meshes": 0,
+"lods/normal_merge_angle": 60.0,
+"lods/normal_split_angle": 25.0,
+"save_to_file/enabled": true,
+"save_to_file/make_streamable": "",
+"save_to_file/path": "res://addons/dungeon_digger/tile_shapes/block/block_bottom_flipped.res"
 },
 "block_front": {
 "generate/lightmap_uv": 0,
@@ -60,6 +80,16 @@ _subresources={
 "save_to_file/make_streamable": "",
 "save_to_file/path": "res://tile_shapes/block/block_front.res"
 },
+"block_front_flipped": {
+"generate/lightmap_uv": 0,
+"generate/lods": 0,
+"generate/shadow_meshes": 0,
+"lods/normal_merge_angle": 60.0,
+"lods/normal_split_angle": 25.0,
+"save_to_file/enabled": true,
+"save_to_file/make_streamable": "",
+"save_to_file/path": "res://addons/dungeon_digger/tile_shapes/block/block_front_flipped.res"
+},
 "block_left": {
 "generate/lightmap_uv": 0,
 "generate/lods": 0,
@@ -69,6 +99,16 @@ _subresources={
 "save_to_file/enabled": true,
 "save_to_file/make_streamable": "",
 "save_to_file/path": "res://tile_shapes/block/block_left.res"
+},
+"block_left_flipped": {
+"generate/lightmap_uv": 0,
+"generate/lods": 0,
+"generate/shadow_meshes": 0,
+"lods/normal_merge_angle": 60.0,
+"lods/normal_split_angle": 25.0,
+"save_to_file/enabled": true,
+"save_to_file/make_streamable": "",
+"save_to_file/path": "res://addons/dungeon_digger/tile_shapes/block/block_left_flipped.res"
 },
 "block_right": {
 "generate/lightmap_uv": 0,
@@ -80,6 +120,16 @@ _subresources={
 "save_to_file/make_streamable": "",
 "save_to_file/path": "res://tile_shapes/block/block_right.res"
 },
+"block_right_flipped": {
+"generate/lightmap_uv": 0,
+"generate/lods": 0,
+"generate/shadow_meshes": 0,
+"lods/normal_merge_angle": 60.0,
+"lods/normal_split_angle": 25.0,
+"save_to_file/enabled": true,
+"save_to_file/make_streamable": "",
+"save_to_file/path": "res://addons/dungeon_digger/tile_shapes/block/block_right_flipped.res"
+},
 "block_top": {
 "generate/lightmap_uv": 0,
 "generate/lods": 0,
@@ -89,6 +139,16 @@ _subresources={
 "save_to_file/enabled": true,
 "save_to_file/make_streamable": "",
 "save_to_file/path": "res://tile_shapes/block/block_top.res"
+},
+"block_top_flipped": {
+"generate/lightmap_uv": 0,
+"generate/lods": 0,
+"generate/shadow_meshes": 0,
+"lods/normal_merge_angle": 60.0,
+"lods/normal_split_angle": 25.0,
+"save_to_file/enabled": true,
+"save_to_file/make_streamable": "",
+"save_to_file/path": "res://addons/dungeon_digger/tile_shapes/block/block_top_flipped.res"
 }
 }
 }
