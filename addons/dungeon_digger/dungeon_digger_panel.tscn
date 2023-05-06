@@ -49,7 +49,7 @@ toggle_mode = true
 button_group = ExtResource("2_k4b6o")
 text = "Tile3D"
 
-[node name="BtnModeTile2D" type="Button" parent="VBoxContainer/PanelContainer"]
+[node name="BtnModeTileIndex" type="Button" parent="VBoxContainer/PanelContainer"]
 layout_mode = 2
 toggle_mode = true
 button_group = ExtResource("2_k4b6o")
@@ -616,7 +616,7 @@ item_255/text = ""
 item_255/icon = ExtResource("4_gd5nm")
 
 [connection signal="pressed" from="VBoxContainer/PanelContainer/BtnModeTile3D" to="." method="_on_btn_mode_tile_3d_pressed"]
-[connection signal="pressed" from="VBoxContainer/PanelContainer/BtnModeTile2D" to="." method="_on_btn_mode_tile_2d_pressed"]
+[connection signal="pressed" from="VBoxContainer/PanelContainer/BtnModeTileIndex" to="." method="_on_btn_mode_tile_index_pressed"]
 [connection signal="pressed" from="VBoxContainer/PanelContainer/BtnModePixel" to="." method="_on_btn_mode_pixel_pressed"]
 [connection signal="color_changed" from="VBoxContainer/BoxContainer/Color/SelectedColor" to="." method="_on_draw_color_color_changed"]
-[connection signal="item_selected" from="VBoxContainer/BoxContainer/ScrollContainer/Tile2DList" to="." method="_on_tile_2d_list_item_selected"]
+[connection signal="item_selected" from="VBoxContainer/BoxContainer/ScrollContainer/Tile2DList" to="." method="_on_tile_index_list_item_selected"]

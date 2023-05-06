@@ -42,7 +42,7 @@ var tile_shape_cube_flipped:TileShape = preload("res://addons/dungeon_digger/til
 
 var dd_panel:DungeonDiggerPanel
 
-var selected_tile_2D:int
+var selected_tile_index:int
 var selected_tile_3D:Tile3D
 
 # Called when the node enters the scene tree for the first time.
@@ -50,14 +50,15 @@ func _ready():
 	
 	set_meta("_edit_lock_", true)
 	set_meta("_edit_group_", true)
-	
 
-func get_selected_tile_2D():
+
+func get_selected_tile_index():
 	
 	if dd_panel == null:
 		dd_panel = get_tree().get_meta("__dungeon_digger_panel")
 		
-	return dd_panel.selected_tile_2D
+	return dd_panel.selected_tile_index
+
 
 func create_test_tiles():
 	
@@ -69,7 +70,7 @@ func create_test_tiles():
 	$CollisionShape3D.shape.set_faces(faces)
 
 
-func coord_to_tile_pos(p_coord:Vector3) -> Vector3i:
+func coord_to_block_pos(p_coord:Vector3) -> Vector3i:
 	
 	var tile_pos = p_coord
 	
@@ -78,38 +79,75 @@ func coord_to_tile_pos(p_coord:Vector3) -> Vector3i:
 
 	return tile_pos as Vector3i
 
-func dig_block(p_pos:Vector3i, p_tile:int):
-	
-	update_mesh(p_pos, p_tile, true)
-	
-func place_block(p_pos:Vector3i, p_tile:int):
-	
-	update_mesh(p_pos, p_tile, false)
 
-func set_tile_2D(p_tile_pos:Vector3i, p_face:Vector3i):
+func dig_block(p_pos:Vector3i, p_tile_index:int):
 	
-	var dd_panel:DungeonDiggerPanel = get_tree().get_meta("__dungeon_digger_panel")
+#	print(p_tile_index)
+	update_mesh(p_pos, p_tile_index, true)
 
-	var tile_2D = dd_panel.selected_tile_2D
+
+func place_block(p_pos:Vector3i, p_tile_index:int):
 	
-	match p_face:
-		Vector3i.DOWN:
-			tile_map[p_tile_pos].tile_2D_down = tile_2D
-		Vector3i.UP:
-			tile_map[p_tile_pos].tile_2D_up = tile_2D
-		Vector3i.LEFT:
-			tile_map[p_tile_pos].tile_2D_left = tile_2D
-		Vector3i.RIGHT:
-			tile_map[p_tile_pos].tile_2D_right = tile_2D
-		Vector3i.BACK:
-			tile_map[p_tile_pos].tile_2D_back = tile_2D
-		Vector3i.FORWARD:
-			tile_map[p_tile_pos].tile_2D_forward = tile_2D
+#	print(p_tile_index)
+	update_mesh(p_pos, p_tile_index, false)
 
-func copy_mesh(p_mesh_to_copy:Mesh, 
-				p_surface_tool:SurfaceTool, 
-				p_tile_pos:Vector3i, 
-				p_tile_2D:int):
+
+func set_tile_index(p_block_pos:Vector3i, p_face:Vector3i, p_tile_index):
+	
+	update_mesh_tile(p_block_pos, p_face as Vector3, p_tile_index)
+	
+#	match p_face:
+#		Vector3i.DOWN:
+#			tile_map[p_tile_pos].tile_2D_down = p_tile_2D
+#		Vector3i.UP:
+#			tile_map[p_tile_pos].tile_2D_up = p_tile_2D
+#		Vector3i.LEFT:
+#			tile_map[p_tile_pos].tile_2D_left = p_tile_2D
+#		Vector3i.RIGHT:
+#			tile_map[p_tile_pos].tile_2D_right = p_tile_2D
+#		Vector3i.BACK:
+#			tile_map[p_tile_pos].tile_2D_back = p_tile_2D
+#		Vector3i.FORWARD:
+#			tile_map[p_tile_pos].tile_2D_forward = p_tile_2D
+
+func get_vertex_uv(p_vertex:Vector3, p_normal:Vector3, p_tile_index:int) -> Vector2:
+	
+	var uv:Vector2 = Vector2.ZERO
+
+		#set uv according to triangle direction
+	if p_normal.dot(Vector3.FORWARD) > 0.5:
+		uv.x = p_vertex.x
+		uv.y = -p_vertex.y
+	elif p_normal.dot(Vector3.BACK) > 0.5:
+		uv.x = -p_vertex.x
+		uv.y = -p_vertex.y
+	elif p_normal.dot(Vector3.LEFT) > 0.5:
+		uv.x = -p_vertex.z
+		uv.y = -p_vertex.y
+	elif p_normal.dot(Vector3.RIGHT) > 0.5:
+		uv.x = p_vertex.z
+		uv.y = -p_vertex.y
+	else:
+		uv.x = p_vertex.x
+		uv.y = p_vertex.z
+		
+	var tile_size_ = 2.0
+	uv.x = (uv.x + tile_size_ / 2.0) / tile_size_
+	uv.y = (uv.y + tile_size_ / 2.0) / tile_size_
+	
+	var tile_2D_x = p_tile_index % tiles_xcount
+	var tile_2D_y = floor(p_tile_index / tiles_xcount)
+	
+	#tile coordinate
+	uv.x = uv.x / tiles_xcount + tile_2D_y * (1.0 / tiles_xcount)
+	uv.y = uv.y / tiles_xcount + tile_2D_x * (1.0 / tiles_xcount)
+
+	return uv
+
+func add_mesh_to_surface(p_mesh_to_copy:Mesh, 
+						p_surface_tool:SurfaceTool, 
+						p_tile_pos:Vector3i, 
+						p_tile_index:int):
 	
 	var mesh_data_tool:MeshDataTool = MeshDataTool.new()
 	mesh_data_tool.create_from_surface(p_mesh_to_copy, 0)
@@ -124,39 +162,41 @@ func copy_mesh(p_mesh_to_copy:Mesh,
 		
 		for vi in range(3):
 			
-			var vertex_index = mesh_data_tool.get_face_vertex(face_index,vi)
+			var vertex_index = mesh_data_tool.get_face_vertex(face_index, vi)
 			
 			vertex = mesh_data_tool.get_vertex(vertex_index)
 			normal = mesh_data_tool.get_vertex_normal(vertex_index)
-			uv = mesh_data_tool.get_vertex_uv(vertex_index)
+#			uv = mesh_data_tool.get_vertex_uv(vertex_index)
 			
-			#set uv according to triangle direction
-			if face_normal.dot(Vector3.FORWARD) > 0.5:
-				uv.x = vertex.x
-				uv.y = -vertex.y
-			elif face_normal.dot(Vector3.BACK) > 0.5:
-				uv.x = -vertex.x
-				uv.y = -vertex.y
-			elif face_normal.dot(Vector3.LEFT) > 0.5:
-				uv.x = -vertex.z
-				uv.y = -vertex.y
-			elif face_normal.dot(Vector3.RIGHT) > 0.5:
-				uv.x = vertex.z
-				uv.y = -vertex.y
-			else:
-				uv.x = vertex.x
-				uv.y = vertex.z
-				
-			var tile_size_ = 2.0
-			uv.x = (uv.x + tile_size_ / 2.0) / tile_size_
-			uv.y = (uv.y + tile_size_ / 2.0) / tile_size_
+			uv = get_vertex_uv(vertex, face_normal, p_tile_index)
 			
-			var tile_2D_x = p_tile_2D % tiles_xcount
-			var tile_2D_y = floor(p_tile_2D / tiles_xcount)
-			
-			#tile coordinate
-			uv.x = uv.x / tiles_xcount + tile_2D_y * (1.0 / tiles_xcount)
-			uv.y = uv.y / tiles_xcount + tile_2D_x * (1.0 / tiles_xcount)
+#			#set uv according to triangle direction
+#			if face_normal.dot(Vector3.FORWARD) > 0.5:
+#				uv.x = vertex.x
+#				uv.y = -vertex.y
+#			elif face_normal.dot(Vector3.BACK) > 0.5:
+#				uv.x = -vertex.x
+#				uv.y = -vertex.y
+#			elif face_normal.dot(Vector3.LEFT) > 0.5:
+#				uv.x = -vertex.z
+#				uv.y = -vertex.y
+#			elif face_normal.dot(Vector3.RIGHT) > 0.5:
+#				uv.x = vertex.z
+#				uv.y = -vertex.y
+#			else:
+#				uv.x = vertex.x
+#				uv.y = vertex.z
+#
+#			var tile_size_ = 2.0
+#			uv.x = (uv.x + tile_size_ / 2.0) / tile_size_
+#			uv.y = (uv.y + tile_size_ / 2.0) / tile_size_
+#
+#			var tile_2D_x = p_tile_index % tiles_xcount
+#			var tile_2D_y = floor(p_tile_index / tiles_xcount)
+#
+#			#tile coordinate
+#			uv.x = uv.x / tiles_xcount + tile_2D_y * (1.0 / tiles_xcount)
+#			uv.y = uv.y / tiles_xcount + tile_2D_x * (1.0 / tiles_xcount)
 			
 #			print(uv)
 
@@ -167,28 +207,28 @@ func copy_mesh(p_mesh_to_copy:Mesh,
 			p_surface_tool.set_normal(normal)
 			p_surface_tool.add_vertex(vertex)
 
-func get_tile_tex(p_tile:Tile3D, p_face:Vector3i) -> int:
-	
-	var tile_2D:int
-	
-	match p_face:
-		Vector3i.DOWN:
-			tile_2D = p_tile.tile_2D_down
-		Vector3i.UP:
-			tile_2D = p_tile.tile_2D_up
-		Vector3i.LEFT:
-			tile_2D = p_tile.tile_2D_left
-		Vector3i.RIGHT:
-			tile_2D = p_tile.tile_2D_right
-		Vector3i.BACK:
-			tile_2D = p_tile.tile_2D_back
-		Vector3i.FORWARD:
-			tile_2D = p_tile.tile_2D_forward
-			
-	if tile_2D == -1:
-		return p_tile.tile_2D
-		
-	return tile_2D
+#func get_tile_tex(p_tile:Tile3D, p_face:Vector3i) -> int:
+#
+#	var tile_index:int
+#
+#	match p_face:
+#		Vector3i.DOWN:
+#			tile_index = p_tile.tile_index_down
+#		Vector3i.UP:
+#			tile_2D = p_tile.tile_2D_up
+#		Vector3i.LEFT:
+#			tile_2D = p_tile.tile_2D_left
+#		Vector3i.RIGHT:
+#			tile_2D = p_tile.tile_2D_right
+#		Vector3i.BACK:
+#			tile_2D = p_tile.tile_2D_back
+#		Vector3i.FORWARD:
+#			tile_2D = p_tile.tile_2D_forward
+#
+#	if tile_2D == -1:
+#		return p_tile.tile_2D
+#
+#	return tile_2D
 	
 	
 func get_block_bounds(p_pos:Vector3i) -> Bounds:
@@ -207,7 +247,7 @@ func get_block_bounds(p_pos:Vector3i) -> Bounds:
 	return Bounds.new(min, max)
 	
 	
-func create_block_face(p_surface_tool:SurfaceTool, p_block_pos:Vector3i, p_face:Vector3i, p_tile_2D:int, p_dig:bool):
+func create_block_face(p_surface_tool:SurfaceTool, p_block_pos:Vector3i, p_face:Vector3i, p_tile_index:int, p_dig:bool):
 	
 	var tile_shape:TileShape
 	
@@ -219,35 +259,35 @@ func create_block_face(p_surface_tool:SurfaceTool, p_block_pos:Vector3i, p_face:
 	if p_dig:
 		
 		if p_face == Vector3i.LEFT:
-			copy_mesh(tile_shape.mesh_right, p_surface_tool, p_block_pos, p_tile_2D)
+			add_mesh_to_surface(tile_shape.mesh_right, p_surface_tool, p_block_pos, p_tile_index)
 		if p_face == Vector3i.RIGHT:
-			copy_mesh(tile_shape.mesh_left, p_surface_tool, p_block_pos, p_tile_2D)
+			add_mesh_to_surface(tile_shape.mesh_left, p_surface_tool, p_block_pos, p_tile_index)
 		if p_face == Vector3i.UP:
-			copy_mesh(tile_shape.mesh_up, p_surface_tool, p_block_pos, p_tile_2D)
+			add_mesh_to_surface(tile_shape.mesh_up, p_surface_tool, p_block_pos, p_tile_index)
 		if p_face == Vector3i.DOWN:
-			copy_mesh(tile_shape.mesh_down, p_surface_tool, p_block_pos, p_tile_2D)
+			add_mesh_to_surface(tile_shape.mesh_down, p_surface_tool, p_block_pos, p_tile_index)
 		if p_face == Vector3i.BACK:
-			copy_mesh(tile_shape.mesh_forward, p_surface_tool, p_block_pos, p_tile_2D)
+			add_mesh_to_surface(tile_shape.mesh_forward, p_surface_tool, p_block_pos, p_tile_index)
 		if p_face == Vector3i.FORWARD:
-			copy_mesh(tile_shape.mesh_back, p_surface_tool, p_block_pos, p_tile_2D)
+			add_mesh_to_surface(tile_shape.mesh_back, p_surface_tool, p_block_pos, p_tile_index)
 			
 	else:
 		
 		if p_face == Vector3i.LEFT:
-			copy_mesh(tile_shape.mesh_left, p_surface_tool, p_block_pos, p_tile_2D)
+			add_mesh_to_surface(tile_shape.mesh_left, p_surface_tool, p_block_pos, p_tile_index)
 		if p_face == Vector3i.RIGHT:
-			copy_mesh(tile_shape.mesh_right, p_surface_tool, p_block_pos, p_tile_2D)
+			add_mesh_to_surface(tile_shape.mesh_right, p_surface_tool, p_block_pos, p_tile_index)
 		if p_face == Vector3i.UP:
-			copy_mesh(tile_shape.mesh_down, p_surface_tool, p_block_pos, p_tile_2D)
+			add_mesh_to_surface(tile_shape.mesh_down, p_surface_tool, p_block_pos, p_tile_index)
 		if p_face == Vector3i.DOWN:
-			copy_mesh(tile_shape.mesh_up, p_surface_tool, p_block_pos, p_tile_2D)
+			add_mesh_to_surface(tile_shape.mesh_up, p_surface_tool, p_block_pos, p_tile_index)
 		if p_face == Vector3i.BACK:
-			copy_mesh(tile_shape.mesh_back, p_surface_tool, p_block_pos, p_tile_2D)
+			add_mesh_to_surface(tile_shape.mesh_back, p_surface_tool, p_block_pos, p_tile_index)
 		if p_face == Vector3i.FORWARD:
-			copy_mesh(tile_shape.mesh_forward, p_surface_tool, p_block_pos, p_tile_2D)
+			add_mesh_to_surface(tile_shape.mesh_forward, p_surface_tool, p_block_pos, p_tile_index)
 
 
-func update_mesh(p_block_pos:Vector3i, p_tile_2D:int, p_dig = true):
+func update_mesh(p_block_pos:Vector3i, p_tile_index:int, p_dig = true):
 	
 	#source mesh
 	var mesh_data_tool:MeshDataTool = MeshDataTool.new()
@@ -321,7 +361,7 @@ func update_mesh(p_block_pos:Vector3i, p_tile_2D:int, p_dig = true):
 	#create missing faces
 	for face in block_faces:
 #		print("face to create:", face)
-		create_block_face(surface_tool, p_block_pos, face, p_tile_2D, p_dig)
+		create_block_face(surface_tool, p_block_pos, face, p_tile_index, p_dig)
 
 	#set mesh
 	var mesh:Mesh = surface_tool.commit()
@@ -330,6 +370,68 @@ func update_mesh(p_block_pos:Vector3i, p_tile_2D:int, p_dig = true):
 	#set collision
 	var faces:Array = mesh.surface_get_arrays(0)[0]
 	$CollisionShape3D.shape.set_faces(faces)
+
+
+func update_mesh_tile(p_block_pos:Vector3i, p_normal:Vector3, p_tile_index:int):
+	
+	var mesh_data_tool:MeshDataTool = MeshDataTool.new()
+	mesh_data_tool.create_from_surface($Chunk.mesh, 0)
+	
+	var vertex:Vector3
+	var normal:Vector3
+	var uv:Vector2
+	
+	#the bounds of the updated block to search faces
+	var block_bounds = get_block_bounds(p_block_pos)
+	
+	#TRIANGLES
+	for face_index in range(mesh_data_tool.get_face_count()):
+		
+		var face_normal = mesh_data_tool.get_face_normal(face_index)
+		
+		if face_normal.dot(p_normal) > 0.5:
+		
+			var face_in_bounds:bool = true
+			
+			#is the face in update bounds ?
+			for vi in range(3):
+				
+				var vertex_index = mesh_data_tool.get_face_vertex(face_index,vi)
+				
+				vertex = mesh_data_tool.get_vertex(vertex_index)
+				
+				if not block_bounds.is_in_bounds(vertex):
+					face_in_bounds = false
+					break
+				
+			if face_in_bounds:
+				
+				for vi in range(3):
+					
+					var vertex_index = mesh_data_tool.get_face_vertex(face_index,vi)
+					
+#					uv = mesh_data_tool.get_vertex_uv(vertex_index)
+					vertex = mesh_data_tool.get_vertex(vertex_index)
+					
+#					uv.x = 0
+#					uv.y = 0
+					
+					vertex -= (p_block_pos as Vector3) * tile_size
+					vertex /= tile_size / 2.0
+					
+					uv = get_vertex_uv(vertex, face_normal, p_tile_index)
+					
+#					vertex *= tile_size / 2.0
+#					vertex += (p_tile_pos as Vector3) * tile_size
+					
+					mesh_data_tool.set_vertex_uv(vertex_index, uv)
+
+				print("found triangle")
+#				print("face normal:", face_normal)
+#				print("p_normal:", p_normal)
+
+	$Chunk.mesh.clear_surfaces()
+	mesh_data_tool.commit_to_surface($Chunk.mesh)
 
 
 func set_pixel(p_pos:Vector2i, color:Color):
@@ -349,6 +451,7 @@ func set_pixel(p_pos:Vector2i, color:Color):
 
 	var err = ResourceSaver.save(image_texture, "atlas.image_texture.res")
 
+
 func get_pixel(p_pos:Vector2i) -> Color:
 	
 	var material:StandardMaterial3D = $Chunk.material_override
@@ -357,6 +460,7 @@ func get_pixel(p_pos:Vector2i) -> Color:
 	var image:Image = texture.get_image()
 
 	return image.get_pixel(p_pos.x, p_pos.y)
+
 
 func barycentric_coordinates(v_a:Vector3, v_b:Vector3, v_c:Vector3, p:Vector3) -> Vector3:
 	
@@ -379,6 +483,7 @@ func barycentric_coordinates(v_a:Vector3, v_b:Vector3, v_c:Vector3, p:Vector3) -
 	var u = 1.0 - v - w
 
 	return Vector3(u, v, w)
+
 
 func ray_to_pixel_pos(ray_from:Vector3, ray_dir:Vector3) -> Vector2i:
 	

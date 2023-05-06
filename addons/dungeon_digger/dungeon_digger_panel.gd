@@ -7,13 +7,13 @@ enum DRAW_MODE {PIXEL, TILE2D, TILE3D}
 var draw_mode = DRAW_MODE.TILE3D
 
 var selected_color:Color = Color.CORNFLOWER_BLUE
-var selected_tile_2D:int = -1
+var selected_tile_index:int = -1
 
 func _ready():
 	
-	build_tile_2d_list()
+	build_tile_index_list()
 	
-func build_tile_2d_list():
+func build_tile_index_list():
 	
 	var tile_list:ItemList = %Tile2DList
 	tile_list.clear()
@@ -42,12 +42,13 @@ func _on_draw_color_color_changed(p_color):
 func _on_btn_mode_tile_3d_pressed():
 	draw_mode = DRAW_MODE.TILE3D
 
-func _on_btn_mode_tile_2d_pressed():
+func _on_btn_mode_tile_index_pressed():
 	draw_mode = DRAW_MODE.TILE2D
 
 func _on_btn_mode_pixel_pressed():
 	draw_mode = DRAW_MODE.PIXEL
 
-func _on_tile_2d_list_item_selected(index):
+func _on_tile_index_list_item_selected(index):
 	
-	selected_tile_2D = index
+	print("selected tile index:", index)
+	selected_tile_index = index

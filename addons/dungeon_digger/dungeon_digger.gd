@@ -88,25 +88,25 @@ func tilemap_action(cursor_info, remove_mode:bool, copy_mode:bool):
 					
 			elif dd_panel.draw_mode == dd_panel.DRAW_MODE.TILE2D:
 				
-				var tile_pos = tile_map.coord_to_tile_pos(cursor_info.position + cursor_info.normal * tile_map.tile_size / 2.0)
+				var block_pos = tile_map.coord_to_block_pos(cursor_info.position + cursor_info.normal * tile_map.tile_size / 2.0)
 				
-				var face:Vector3i = Vector3i.ZERO
-				const normal_dir_match:= 0.5
+#				var face:Vector3i = Vector3i.ZERO
+#				const normal_dir_match:= 0.5
+#
+#				if cursor_info.normal.dot(Vector3.LEFT) > normal_dir_match:
+#					face = Vector3i.RIGHT
+#				elif cursor_info.normal.dot(Vector3.RIGHT) > normal_dir_match:
+#					face = Vector3i.LEFT
+#				elif cursor_info.normal.dot(Vector3.DOWN) > normal_dir_match:
+#					face = Vector3i.UP
+#				elif cursor_info.normal.dot(Vector3.UP) > normal_dir_match:
+#					face = Vector3i.DOWN
+#				elif cursor_info.normal.dot(Vector3.FORWARD) > normal_dir_match:
+#					face = Vector3i.BACK
+#				elif cursor_info.normal.dot(Vector3.BACK) > normal_dir_match:
+#					face = Vector3i.FORWARD
 				
-				if cursor_info.normal.dot(Vector3.LEFT) > normal_dir_match:
-					face = Vector3i.RIGHT
-				elif cursor_info.normal.dot(Vector3.RIGHT) > normal_dir_match:
-					face = Vector3i.LEFT
-				elif cursor_info.normal.dot(Vector3.DOWN) > normal_dir_match:
-					face = Vector3i.UP
-				elif cursor_info.normal.dot(Vector3.UP) > normal_dir_match:
-					face = Vector3i.DOWN
-				elif cursor_info.normal.dot(Vector3.FORWARD) > normal_dir_match:
-					face = Vector3i.BACK
-				elif cursor_info.normal.dot(Vector3.BACK) > normal_dir_match:
-					face = Vector3i.FORWARD
-				
-				tile_map.set_tile_2D(tile_pos, face)
+				tile_map.set_tile_index(block_pos, cursor_info.normal as Vector3, dd_panel.selected_tile_index)
 				
 #				tile_map.generate_mesh(true)
 				
@@ -117,14 +117,14 @@ func tilemap_action(cursor_info, remove_mode:bool, copy_mode:bool):
 				if remove_mode:
 					direction = 1.0
 				
-				var tile_pos = tile_map.coord_to_tile_pos(cursor_info.position + direction * cursor_info.normal * tile_map.tile_size / 2.0)
+				var block_pos = tile_map.coord_to_block_pos(cursor_info.position + direction * cursor_info.normal * tile_map.tile_size / 2.0)
 				
 				if remove_mode:
-					tile_map.place_block(tile_pos, dd_panel.selected_tile_2D)
-					print("remove block:", tile_pos)
+					tile_map.place_block(block_pos, dd_panel.selected_tile_index)
+					print("remove block:", block_pos)
 				else:
-					tile_map.dig_block(tile_pos, dd_panel.selected_tile_2D)
-					print("set block:", tile_pos)
+					tile_map.dig_block(block_pos, dd_panel.selected_tile_index)
+					print("set block:", block_pos)
 
 func _forward_3d_gui_input(camera, event):
 	
