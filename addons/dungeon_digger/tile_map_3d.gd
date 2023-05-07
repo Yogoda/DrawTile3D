@@ -33,17 +33,13 @@ class Bounds:
 @export var tile_size:Vector3 = Vector3(1.0, 1.0, 1.0)
 @export var tiles_xcount:=16
 
-var tile_map = {}
-
-var tile_chunks = {}
-
 var tile_shape_cube:TileShape = preload("res://addons/dungeon_digger/tile_shapes/block/cube.tile_shape.tres")
 var tile_shape_cube_flipped:TileShape = preload("res://addons/dungeon_digger/tile_shapes/block/cube_flipped.tile_shape.tres")
 
 var dd_panel:DungeonDiggerPanel
 
-var selected_tile_index:int
-var selected_tile_3D:Tile3D
+#var selected_tile_index:int
+#var selected_tile_3D:Tile3D
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -65,9 +61,7 @@ func create_test_tiles():
 	var mesh:Mesh = load("res://starting_mesh.mesh.res")
 	$Chunk.mesh = mesh.duplicate()
 	
-	#set collision
-	var faces:Array = mesh.surface_get_arrays(0)[0]
-	$CollisionShape3D.shape.set_faces(faces)
+	update_collision()
 
 
 func coord_to_block_pos(p_coord:Vector3) -> Vector3i:
@@ -82,33 +76,18 @@ func coord_to_block_pos(p_coord:Vector3) -> Vector3i:
 
 func dig_block(p_pos:Vector3i, p_tile_index:int):
 	
-#	print(p_tile_index)
 	update_mesh(p_pos, p_tile_index, true)
 
 
 func place_block(p_pos:Vector3i, p_tile_index:int):
 	
-#	print(p_tile_index)
 	update_mesh(p_pos, p_tile_index, false)
 
 
 func set_tile_index(p_block_pos:Vector3i, p_face:Vector3i, p_tile_index):
 	
 	update_mesh_tile(p_block_pos, p_face as Vector3, p_tile_index)
-	
-#	match p_face:
-#		Vector3i.DOWN:
-#			tile_map[p_tile_pos].tile_2D_down = p_tile_2D
-#		Vector3i.UP:
-#			tile_map[p_tile_pos].tile_2D_up = p_tile_2D
-#		Vector3i.LEFT:
-#			tile_map[p_tile_pos].tile_2D_left = p_tile_2D
-#		Vector3i.RIGHT:
-#			tile_map[p_tile_pos].tile_2D_right = p_tile_2D
-#		Vector3i.BACK:
-#			tile_map[p_tile_pos].tile_2D_back = p_tile_2D
-#		Vector3i.FORWARD:
-#			tile_map[p_tile_pos].tile_2D_forward = p_tile_2D
+
 
 func get_vertex_uv(p_vertex:Vector3, p_normal:Vector3, p_tile_index:int) -> Vector2:
 	
@@ -166,39 +145,8 @@ func add_mesh_to_surface(p_mesh_to_copy:Mesh,
 			
 			vertex = mesh_data_tool.get_vertex(vertex_index)
 			normal = mesh_data_tool.get_vertex_normal(vertex_index)
-#			uv = mesh_data_tool.get_vertex_uv(vertex_index)
 			
 			uv = get_vertex_uv(vertex, face_normal, p_tile_index)
-			
-#			#set uv according to triangle direction
-#			if face_normal.dot(Vector3.FORWARD) > 0.5:
-#				uv.x = vertex.x
-#				uv.y = -vertex.y
-#			elif face_normal.dot(Vector3.BACK) > 0.5:
-#				uv.x = -vertex.x
-#				uv.y = -vertex.y
-#			elif face_normal.dot(Vector3.LEFT) > 0.5:
-#				uv.x = -vertex.z
-#				uv.y = -vertex.y
-#			elif face_normal.dot(Vector3.RIGHT) > 0.5:
-#				uv.x = vertex.z
-#				uv.y = -vertex.y
-#			else:
-#				uv.x = vertex.x
-#				uv.y = vertex.z
-#
-#			var tile_size_ = 2.0
-#			uv.x = (uv.x + tile_size_ / 2.0) / tile_size_
-#			uv.y = (uv.y + tile_size_ / 2.0) / tile_size_
-#
-#			var tile_2D_x = p_tile_index % tiles_xcount
-#			var tile_2D_y = floor(p_tile_index / tiles_xcount)
-#
-#			#tile coordinate
-#			uv.x = uv.x / tiles_xcount + tile_2D_y * (1.0 / tiles_xcount)
-#			uv.y = uv.y / tiles_xcount + tile_2D_x * (1.0 / tiles_xcount)
-			
-#			print(uv)
 
 			vertex *= tile_size / 2.0
 			vertex += (p_tile_pos as Vector3) * tile_size
@@ -207,30 +155,7 @@ func add_mesh_to_surface(p_mesh_to_copy:Mesh,
 			p_surface_tool.set_normal(normal)
 			p_surface_tool.add_vertex(vertex)
 
-#func get_tile_tex(p_tile:Tile3D, p_face:Vector3i) -> int:
-#
-#	var tile_index:int
-#
-#	match p_face:
-#		Vector3i.DOWN:
-#			tile_index = p_tile.tile_index_down
-#		Vector3i.UP:
-#			tile_2D = p_tile.tile_2D_up
-#		Vector3i.LEFT:
-#			tile_2D = p_tile.tile_2D_left
-#		Vector3i.RIGHT:
-#			tile_2D = p_tile.tile_2D_right
-#		Vector3i.BACK:
-#			tile_2D = p_tile.tile_2D_back
-#		Vector3i.FORWARD:
-#			tile_2D = p_tile.tile_2D_forward
-#
-#	if tile_2D == -1:
-#		return p_tile.tile_2D
-#
-#	return tile_2D
-	
-	
+
 func get_block_bounds(p_pos:Vector3i) -> Bounds:
 	
 	var margin = 0.01
@@ -245,8 +170,8 @@ func get_block_bounds(p_pos:Vector3i) -> Bounds:
 	max += tile_size * (p_pos as Vector3)
 	
 	return Bounds.new(min, max)
-	
-	
+
+
 func create_block_face(p_surface_tool:SurfaceTool, p_block_pos:Vector3i, p_face:Vector3i, p_tile_index:int, p_dig:bool):
 	
 	var tile_shape:TileShape
@@ -360,16 +285,13 @@ func update_mesh(p_block_pos:Vector3i, p_tile_index:int, p_dig = true):
 	
 	#create missing faces
 	for face in block_faces:
-#		print("face to create:", face)
 		create_block_face(surface_tool, p_block_pos, face, p_tile_index, p_dig)
 
 	#set mesh
 	var mesh:Mesh = surface_tool.commit()
 	$Chunk.mesh = mesh
 	
-	#set collision
-	var faces:Array = mesh.surface_get_arrays(0)[0]
-	$CollisionShape3D.shape.set_faces(faces)
+#	update_collision()
 
 
 func update_mesh_tile(p_block_pos:Vector3i, p_normal:Vector3, p_tile_index:int):
@@ -409,29 +331,24 @@ func update_mesh_tile(p_block_pos:Vector3i, p_normal:Vector3, p_tile_index:int):
 				for vi in range(3):
 					
 					var vertex_index = mesh_data_tool.get_face_vertex(face_index,vi)
-					
-#					uv = mesh_data_tool.get_vertex_uv(vertex_index)
+
 					vertex = mesh_data_tool.get_vertex(vertex_index)
-					
-#					uv.x = 0
-#					uv.y = 0
 					
 					vertex -= (p_block_pos as Vector3) * tile_size
 					vertex /= tile_size / 2.0
 					
 					uv = get_vertex_uv(vertex, face_normal, p_tile_index)
 					
-#					vertex *= tile_size / 2.0
-#					vertex += (p_tile_pos as Vector3) * tile_size
-					
 					mesh_data_tool.set_vertex_uv(vertex_index, uv)
-
-				print("found triangle")
-#				print("face normal:", face_normal)
-#				print("p_normal:", p_normal)
 
 	$Chunk.mesh.clear_surfaces()
 	mesh_data_tool.commit_to_surface($Chunk.mesh)
+
+func update_collision():
+	
+	#set collision
+	var faces:Array = $Chunk.mesh.surface_get_arrays(0)[0]
+	$CollisionShape3D.shape.set_faces(faces)
 
 
 func set_pixel(p_pos:Vector2i, color:Color):
@@ -442,9 +359,7 @@ func set_pixel(p_pos:Vector2i, color:Color):
 	var image:Image = texture.get_image()
 
 	image.set_pixel(p_pos.x, p_pos.y, color)
-#	print("set pixel:", p_pos.x, " ", p_pos.y, " ", color)
-	
-#	texture_2d_update
+
 	RenderingServer.texture_2d_update(texture.get_rid(), image, 0)
 
 	var image_texture = ImageTexture.create_from_image(image)

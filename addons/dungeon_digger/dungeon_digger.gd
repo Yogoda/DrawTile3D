@@ -3,6 +3,8 @@ extends EditorPlugin
 
 var dd_panel
 
+var blocks_list:Array[Vector3i] = []
+
 func _enter_tree():
 
 	_enable_plugin()
@@ -90,34 +92,22 @@ func tilemap_action(cursor_info, remove_mode:bool, copy_mode:bool):
 				
 				var block_pos = tile_map.coord_to_block_pos(cursor_info.position + cursor_info.normal * tile_map.tile_size / 2.0)
 				
-#				var face:Vector3i = Vector3i.ZERO
-#				const normal_dir_match:= 0.5
-#
-#				if cursor_info.normal.dot(Vector3.LEFT) > normal_dir_match:
-#					face = Vector3i.RIGHT
-#				elif cursor_info.normal.dot(Vector3.RIGHT) > normal_dir_match:
-#					face = Vector3i.LEFT
-#				elif cursor_info.normal.dot(Vector3.DOWN) > normal_dir_match:
-#					face = Vector3i.UP
-#				elif cursor_info.normal.dot(Vector3.UP) > normal_dir_match:
-#					face = Vector3i.DOWN
-#				elif cursor_info.normal.dot(Vector3.FORWARD) > normal_dir_match:
-#					face = Vector3i.BACK
-#				elif cursor_info.normal.dot(Vector3.BACK) > normal_dir_match:
-#					face = Vector3i.FORWARD
-				
 				tile_map.set_tile_index(block_pos, cursor_info.normal as Vector3, dd_panel.selected_tile_index)
 				
-#				tile_map.generate_mesh(true)
-				
 			elif dd_panel.draw_mode == dd_panel.DRAW_MODE.TILE3D:
-			
+						
 				var direction = -1.0
 				
 				if remove_mode:
 					direction = 1.0
 				
 				var block_pos = tile_map.coord_to_block_pos(cursor_info.position + direction * cursor_info.normal * tile_map.tile_size / 2.0)
+				
+				#block already processed, skip
+				if blocks_list.has(block_pos):
+					return
+					
+				blocks_list.append(block_pos)
 				
 				if remove_mode:
 					tile_map.place_block(block_pos, dd_panel.selected_tile_index)
@@ -128,8 +118,10 @@ func tilemap_action(cursor_info, remove_mode:bool, copy_mode:bool):
 
 func _forward_3d_gui_input(camera, event):
 	
-	if event is InputEventMouseMotion and dd_panel.draw_mode != dd_panel.DRAW_MODE.TILE3D:
+#	if event is InputEventMouseMotion and dd_panel.draw_mode != dd_panel.DRAW_MODE.TILE3D:
+	if event is InputEventMouseMotion:
 		
+		#mouse move with button pressed
 		if event.button_mask == MOUSE_BUTTON_MASK_LEFT:
 			
 			var cursor_info = get_cursor_info(event.position, camera)
@@ -138,11 +130,26 @@ func _forward_3d_gui_input(camera, event):
 	
 	elif event is InputEventMouseButton:
 		
+		#left click
 		if event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 			
 			var cursor_info = get_cursor_info(event.position, camera)
 			
 			tilemap_action(cursor_info, event.shift_pressed, event.ctrl_pressed)
+			
+		#release mouse button, rebuild collisions
+		elif event.button_index == MOUSE_BUTTON_LEFT and not event.pressed:
+			
+			if  dd_panel.draw_mode == dd_panel.DRAW_MODE.TILE3D:
+				
+				var cursor_info = get_cursor_info(event.position, camera)
+				var tile_map:TileMap3D = cursor_info.collider
+				
+				blocks_list.clear()
+				
+				if tile_map:
+					tile_map.update_collision()
+					print("update collision")
 			
 #	return EditorPlugin.AFTER_GUI_INPUT_STOP
 #	return EditorPlugin.AFTER_GUI_INPUT_PASS
